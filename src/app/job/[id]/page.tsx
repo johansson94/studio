@@ -43,6 +43,8 @@ import {
   Loader2,
   ReceiptText,
   Calculator,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -59,6 +61,7 @@ import { useToast } from "@/hooks/use-toast";
 import { generateReceiptMessage } from "@/ai/flows/generate-receipt-message";
 import React from "react";
 import { generateTripReport } from "@/ai/flows/generate-trip-report";
+import { useSpeechToText } from "@/hooks/use-speech-to-text";
 
 const getStatusClass = (status: Job["status"]) => {
   switch (status) {
@@ -113,12 +116,68 @@ const standardActions: { id: string; label: string }[] = [
     { id: "Fuel Delivery", label: "Bränsleleverans" },
 ];
 
+function DictationButton({
+  isRecording,
+  isTranscribing,
+  onStart,
+  onStop,
+  targetId,
+}: {
+  isRecording: boolean;
+  isTranscribing: boolean;
+  onStart: (targetId: string) => void;
+  onStop: () => void;
+  targetId: string;
+}) {
+  const handleClick = () => {
+    if (isRecording) {
+      onStop();
+    } else {
+      onStart(targetId);
+    }
+  };
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      onClick={handleClick}
+      disabled={isTranscribing}
+      className={cn(isRecording && "bg-destructive text-destructive-foreground hover:bg-destructive/90")}
+    >
+      {isTranscribing ? <Loader2 className="animate-spin" /> : (isRecording ? <MicOff /> : <Mic />)}
+      <span className="sr-only">{isRecording ? "Stop Recording" : "Start Recording"}</span>
+    </Button>
+  );
+}
+
 
 export default function JobDetailPage({ params: { id } }: { params: { id: string } }) {
   const job = mockJobs.find((j) => j.id === id);
   const { toast } = useToast();
   const [isSending, setIsSending] = React.useState(false);
   const [isCalculating, setIsCalculating] = React.useState(false);
+
+  const destinationNotesRef = React.useRef<HTMLTextAreaElement>(null);
+  const keysLocationRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const onTranscriptionResult = (targetId: string, text: string) => {
+    if (targetId === "destination-notes" && destinationNotesRef.current) {
+        destinationNotesRef.current.value = text;
+    } else if (targetId === "keys-location" && keysLocationRef.current) {
+        keysLocationRef.current.value = text;
+    }
+  };
+
+  const {
+    isRecording,
+    isTranscribing,
+    startRecording,
+    stopRecording,
+    recordingTarget,
+  } = useSpeechToText({ onTranscriptionResult });
+
 
   const deductibleRef = React.useRef<HTMLInputElement>(null);
   const otherFeesRef = React.useRef<HTMLInputElement>(null);
@@ -203,7 +262,7 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
       <div className="flex justify-between items-start gap-4">
         <div>
           <h1 className="text-3xl font-headline font-bold">
-            Uppdrag: {job.id}
+            Uppdrag: {id}
           </h1>
           <p className="text-muted-foreground mt-1">
             Detaljerad information och status för bärgningsuppdraget.
@@ -473,12 +532,30 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div>
-                        <Label htmlFor="destination-notes">Anteckningar om avlämning</Label>
-                        <Textarea id="destination-notes" placeholder="t.ex. Bilen parkerad på kundparkeringen..." />
+                        <div className="flex justify-between items-center mb-1">
+                          <Label htmlFor="destination-notes">Anteckningar om avlämning</Label>
+                           <DictationButton
+                              isRecording={isRecording && recordingTarget === 'destination-notes'}
+                              isTranscribing={isTranscribing && recordingTarget === 'destination-notes'}
+                              onStart={startRecording}
+                              onStop={stopRecording}
+                              targetId="destination-notes"
+                            />
+                        </div>
+                        <Textarea id="destination-notes" placeholder="t.ex. Bilen parkerad på kundparkeringen..." ref={destinationNotesRef}/>
                     </div>
                      <div>
-                        <Label htmlFor="keys-location">Nycklarnas placering</Label>
-                        <Textarea id="keys-location" placeholder="t.ex. I verkstadens nyckelskåp..." />
+                         <div className="flex justify-between items-center mb-1">
+                          <Label htmlFor="keys-location">Nycklarnas placering</Label>
+                          <DictationButton
+                              isRecording={isRecording && recordingTarget === 'keys-location'}
+                              isTranscribing={isTranscribing && recordingTarget === 'keys-location'}
+                              onStart={startRecording}
+                              onStop={stopRecording}
+                              targetId="keys-location"
+                           />
+                         </div>
+                        <Textarea id="keys-location" placeholder="t.ex. I verkstadens nyckelskåp..." ref={keysLocationRef} />
                     </div>
                 </CardContent>
                 <CardFooter>
