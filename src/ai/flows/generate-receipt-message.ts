@@ -10,7 +10,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import type { Job } from '@/lib/types';
 
 const GenerateReceiptMessageInputSchema = z.object({
   jobId: z.string().describe("The job ID."),
