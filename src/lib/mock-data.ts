@@ -57,8 +57,12 @@ export const mockJobs: Job[] = [
       make: "Volvo",
       model: "XC60",
       licensePlate: "REG 123",
+      vin: "YV1DZ835C6F123456",
       type: "Car",
-      mileage: 123456
+      mileage: 123456,
+      engine: "B4 Mild-Hybrid",
+      fuelType: "Gasoline",
+      drivetrain: "AWD",
     },
     location: "E4, Stockholm",
     position: { lat: 59.3498, lng: 18.0291 }, // Near Vasastan
@@ -75,6 +79,7 @@ export const mockJobs: Job[] = [
     ],
     priority: "Hög",
     category: "Mekaniskt fel",
+    insuranceCompany: "If",
   },
   {
     id: "RA-8464",
@@ -83,8 +88,12 @@ export const mockJobs: Job[] = [
       make: "Audi",
       model: "A4",
       licensePlate: "AUD 456",
+      vin: "WAUZZZ8K5DA098765",
       type: "Car",
-      mileage: 89012
+      mileage: 89012,
+      engine: "2.0 TDI",
+      fuelType: "Diesel",
+      drivetrain: "FWD",
     },
     location: "Drottninggatan 5, Uppsala",
     position: { lat: 59.8581, lng: 17.6465 }, // Uppsala Central
@@ -110,6 +119,7 @@ export const mockJobs: Job[] = [
     },
     priority: "Normal",
     category: "Punktering",
+    insuranceCompany: "Trygg-Hansa",
   },
   {
     id: "RA-8465",
@@ -118,8 +128,12 @@ export const mockJobs: Job[] = [
       make: "Scania",
       model: "R-series",
       licensePlate: "TRU 789",
+      vin: "YS2R4X20001234567",
       type: "Truck",
-      mileage: 450678
+      mileage: 450678,
+      engine: "DC13 146",
+      fuelType: "Diesel",
+      drivetrain: "RWD",
     },
     location: "Rv70, Enköping",
     position: { lat: 59.6364, lng: 17.0788 }, // Enköping
@@ -132,7 +146,8 @@ export const mockJobs: Job[] = [
         { event: 'Job Reported', timestamp: new Date(new Date().setHours(new Date().getHours() - 1)) }
     ],
     priority: "Hög",
-    category: "Mekaniskt fel"
+    category: "Mekaniskt fel",
+    insuranceCompany: "Dina Försäkringar",
   },
   {
     id: "RA-8466",
@@ -141,8 +156,12 @@ export const mockJobs: Job[] = [
       make: "Ford",
       model: "Transit",
       licensePlate: "VAN 101",
+      vin: "WF0XXXTTGXGY12345",
       type: "Van",
-      mileage: 210345
+      mileage: 210345,
+      engine: "2.0 EcoBlue",
+      fuelType: "Diesel",
+      drivetrain: "FWD",
     },
     location: "Arlanda Airport",
     position: { lat: 59.6498, lng: 17.9238 }, // Arlanda
@@ -172,7 +191,8 @@ export const mockJobs: Job[] = [
       paidOnSite: true
     },
     category: "Låsöppning",
-    priority: "Normal"
+    priority: "Normal",
+    insuranceCompany: "Länsförsäkringar",
   },
   {
     id: "RA-8467",
@@ -181,8 +201,12 @@ export const mockJobs: Job[] = [
       make: "Kawasaki",
       model: "Ninja 400",
       licensePlate: "MC 202",
+      vin: "JKBRGHYU879SDF987",
       type: "Motorcycle",
-      mileage: 15890
+      mileage: 15890,
+      engine: "399cc",
+      fuelType: "Gasoline",
+      drivetrain: "RWD",
     },
     location: "Gamla Uppsala",
     position: { lat: 59.8988, lng: 17.6332 }, // Gamla Uppsala
@@ -208,7 +232,8 @@ export const mockJobs: Job[] = [
       paidOnSite: false
     },
     category: "Mekaniskt fel",
-    priority: "Normal"
+    priority: "Normal",
+    insuranceCompany: "Bilsport & MC",
   },
   {
     id: "RA-8468",
@@ -217,8 +242,12 @@ export const mockJobs: Job[] = [
       make: "Tesla",
       model: "Model Y",
       licensePlate: "TES 303",
+      vin: "5YJYGDEE3LF123456",
       type: "Car",
-      mileage: 45000
+      mileage: 45000,
+      engine: "Dual Motor",
+      fuelType: "Electric",
+      drivetrain: "AWD",
     },
     location: "Gränby Centrum, Uppsala",
     position: { lat: 59.873, lng: 17.662 }, // Gränby
@@ -233,7 +262,8 @@ export const mockJobs: Job[] = [
         { event: 'Job Reported', timestamp: new Date(new Date().setMinutes(new Date().getMinutes() - 15)) }
     ],
     priority: "Låg",
-    category: "Batteriproblem"
+    category: "Batteriproblem",
+    insuranceCompany: "If"
   },
 ];
 

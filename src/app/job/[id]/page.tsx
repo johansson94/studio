@@ -49,6 +49,9 @@ import {
   FileSpreadsheet,
   Sparkles,
   Lightbulb,
+  Fuel,
+  GitCommitHorizontal,
+  Cog,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -421,7 +424,7 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                 </span>
               </div>
               <Separator />
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                 <div className="flex items-center gap-2">
                   <Tag className="h-4 w-4 text-muted-foreground" />
                   <span>Reg.nr: <strong>{job.vehicle.licensePlate}</strong></span>
@@ -431,12 +434,20 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                   <span>Mätarställning: <strong>{job.vehicle.mileage.toLocaleString()} km</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Rapporterad: <strong>{format(job.reportedAt, "yyyy-MM-dd HH:mm")}</strong></span>
-                </div>
-                 <div className="flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-muted-foreground" />
                   <span>Fordonstyp: <strong>{job.vehicle.type}</strong></span>
+                </div>
+                 <div className="flex items-center gap-2">
+                  <Cog className="h-4 w-4 text-muted-foreground" />
+                  <span>Motor: <strong>{job.vehicle.engine || "N/A"}</strong></span>
+                </div>
+                 <div className="flex items-center gap-2">
+                  <Fuel className="h-4 w-4 text-muted-foreground" />
+                  <span>Bränsle: <strong>{job.vehicle.fuelType || "N/A"}</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <GitCommitHorizontal className="h-4 w-4 text-muted-foreground" />
+                  <span>Drivning: <strong>{job.vehicle.drivetrain || "N/A"}</strong></span>
                 </div>
                 {job.vehicle.vin && (
                     <div className="flex items-center gap-2 col-span-2">
@@ -444,8 +455,12 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                         <strong className="text-xs font-mono">{job.vehicle.vin}</strong>
                     </div>
                 )}
+                <div className="flex items-center gap-2 col-span-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>Rapporterad: <strong>{format(job.reportedAt, "yyyy-MM-dd HH:mm")}</strong></span>
+                </div>
                 {job.insuranceCompany && (
-                     <div className="flex items-center gap-2">
+                     <div className="flex items-center gap-2 col-span-2">
                         <Building className="h-4 w-4 text-muted-foreground" />
                         <span>Försäkringsbolag: <strong>{job.insuranceCompany}</strong></span>
                     </div>

@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User, Car, HardHat, Bike, Truck, Camera, ImagePlus, CheckCircle2, Phone, UserCircle, Users, Sparkles, Loader2, Search, Building } from "lucide-react";
+import { User, Car, HardHat, Bike, Truck, Camera, ImagePlus, CheckCircle2, Phone, UserCircle, Users, Sparkles, Loader2, Search, Building, Fuel, GitCommitHorizontal, Cog } from "lucide-react";
 import type { ActionTaken } from "@/lib/types";
 import { mockUsers } from "@/lib/mock-data";
 import { identifyVehicle } from "@/ai/flows/identify-vehicle";
@@ -54,6 +54,9 @@ const formSchema = z.object({
   vin: z.string().optional(),
   mileage: z.coerce.number().min(0, "Mätarställning kan inte vara negativ."),
   vehicleType: z.enum(["Car", "Motorcycle", "Truck", "Van"]),
+  engine: z.string().optional(),
+  fuelType: z.enum(["Gasoline", "Diesel", "Electric", "Hybrid"]).optional(),
+  drivetrain: z.enum(["FWD", "RWD", "AWD"]).optional(),
   location: z.string().min(5, "Plats måste vara minst 5 tecken."),
   destination: z.string().min(5, "Destination måste vara minst 5 tecken."),
   description: z.string().min(10, "Beskrivning måste vara minst 10 tecken."),
@@ -94,6 +97,7 @@ export function NewReportForm() {
       description: "",
       actionsTaken: [],
       insuranceCompany: "",
+      engine: "",
     },
   });
 
@@ -163,6 +167,9 @@ export function NewReportForm() {
       form.setValue("vehicleModel", result.model);
       form.setValue("vin", result.vin);
       form.setValue("insuranceCompany", result.insuranceCompany);
+      form.setValue("engine", result.engine);
+      form.setValue("fuelType", result.fuelType);
+      form.setValue("drivetrain", result.drivetrain);
        toast({
         title: "Fordonsinformation hämtad!",
         description: `Information för ${result.make} ${result.model} har fyllts i.`,
@@ -383,6 +390,73 @@ export function NewReportForm() {
                         </FormItem>
                       )}
                     />
+                     <FormField
+                      control={form.control}
+                      name="engine"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Motor/Effekt</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                               <Cog className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                               <Input placeholder="t.ex. B4 Mild-Hybrid" {...field} className="pl-10" />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="fuelType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bränsletyp</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                 <div className="flex items-center gap-2">
+                                    <Fuel className="h-4 w-4 text-muted-foreground" />
+                                    <SelectValue placeholder="Välj bränsletyp" />
+                                 </div>
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Gasoline">Bensin</SelectItem>
+                              <SelectItem value="Diesel">Diesel</SelectItem>
+                              <SelectItem value="Electric">El</SelectItem>
+                              <SelectItem value="Hybrid">Hybrid</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="drivetrain"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Drivning</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <div className="flex items-center gap-2">
+                                    <GitCommitHorizontal className="h-4 w-4 text-muted-foreground" />
+                                    <SelectValue placeholder="Välj drivning" />
+                                 </div>
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="FWD">Framhjulsdrift (FWD)</SelectItem>
+                              <SelectItem value="RWD">Bakhjulsdrift (RWD)</SelectItem>
+                              <SelectItem value="AWD">Fyrhjulsdrift (AWD)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="location"
@@ -409,26 +483,30 @@ export function NewReportForm() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Beskrivning av händelse</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Beskriv problemet med fordonet..."
-                              className="resize-none"
-                              rows={5}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                   </div>
                 </div>
+
+                 <Separator className="my-6"/>
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Beskrivning av händelse</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Beskriv problemet med fordonet..."
+                          className="resize-none"
+                          rows={5}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
               </CardContent>
             </Card>
           </div>

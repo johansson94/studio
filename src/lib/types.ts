@@ -38,6 +38,9 @@ export interface Job {
     vin?: string;
     type: "Car" | "Motorcycle" | "Truck" | "Van";
     mileage: number;
+    engine?: string;
+    fuelType?: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
+    drivetrain?: 'FWD' | 'RWD' | 'AWD';
   };
   location: string;
   position: Position;
