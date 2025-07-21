@@ -27,9 +27,11 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User, Car, HardHat, Bike, Truck, Camera, ImagePlus, CheckCircle2, Phone, UserCircle, Users } from "lucide-react";
+import { User, Car, HardHat, Bike, Truck, Camera, ImagePlus, CheckCircle2, Phone, UserCircle, Users, Sparkles, Loader2 } from "lucide-react";
 import type { ActionTaken } from "@/lib/types";
 import { mockUsers } from "@/lib/mock-data";
+import { identifyVehicle } from "@/ai/flows/identify-vehicle";
+import { Separator } from "./ui/separator";
 
 const actions: { id: ActionTaken; label: string }[] = [
     { id: "Towing", label: "Bärgning" },
@@ -65,9 +67,12 @@ export function NewReportForm() {
   const { toast } = useToast();
   const [arrivalImagePreview, setArrivalImagePreview] = useState<string | null>(null);
   const [destinationImagePreview, setDestinationImagePreview] = useState<string | null>(null);
+  const [vehicleIdImage, setVehicleIdImage] = useState<string | null>(null);
+  const [isIdentifying, setIsIdentifying] = useState(false);
 
   const arrivalImageRef = useRef<HTMLInputElement>(null);
   const destinationImageRef = useRef<HTMLInputElement>(null);
+  const vehicleIdImageRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -87,7 +92,7 @@ export function NewReportForm() {
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: "arrivalImage" | "destinationImage",
+    field: "arrivalImage" | "destinationImage" | "vehicleId",
     setter: React.Dispatch<React.SetStateAction<string | null>>
   ) => {
     const file = e.target.files?.[0];
@@ -96,11 +101,44 @@ export function NewReportForm() {
       reader.onloadend = () => {
         const dataUrl = reader.result as string;
         setter(dataUrl);
-        form.setValue(field, dataUrl);
+        if (field !== 'vehicleId') {
+          form.setValue(field, dataUrl);
+        }
       };
       reader.readAsDataURL(file);
     }
   };
+
+  const handleIdentifyVehicle = async () => {
+    if (!vehicleIdImage) {
+      toast({
+        variant: "destructive",
+        title: "Ingen bild vald",
+        description: "Ladda upp en bild på fordonet först.",
+      });
+      return;
+    }
+    setIsIdentifying(true);
+    try {
+      const result = await identifyVehicle({ photoDataUri: vehicleIdImage });
+      form.setValue("vehicleMake", result.make);
+      form.setValue("vehicleModel", result.model);
+      toast({
+        title: "Fordon identifierat!",
+        description: `Fälten för ${result.make} ${result.model} har fyllts i.`,
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Kunde inte identifiera fordonet",
+        description: "Försök med en annan bild eller fyll i fälten manuellt.",
+      });
+    } finally {
+      setIsIdentifying(false);
+    }
+  };
+
 
   function onSubmit(values: FormValues) {
     console.log(values);
@@ -111,6 +149,7 @@ export function NewReportForm() {
     form.reset();
     setArrivalImagePreview(null);
     setDestinationImagePreview(null);
+    setVehicleIdImage(null);
   }
   
   const drivers = mockUsers.filter(user => user.role === 'Driver');
@@ -162,6 +201,33 @@ export function NewReportForm() {
                  <CardTitle className="flex items-center gap-2"><Car className="h-6 w-6" /> Fordons- & Uppdragsdetaljer</CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="space-y-4">
+                  <FormLabel>Identifiera fordon med bild</FormLabel>
+                  <div className="flex flex-col sm:flex-row gap-2 items-center">
+                    <Input 
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      ref={vehicleIdImageRef}
+                      onChange={(e) => handleImageChange(e, "vehicleId", setVehicleIdImage)}
+                    />
+                    <Button type="button" variant="outline" onClick={() => vehicleIdImageRef.current?.click()} className="w-full sm:w-auto">
+                      <ImagePlus className="mr-2 h-4 w-4" /> Ladda upp bild
+                    </Button>
+                    <Button type="button" onClick={handleIdentifyVehicle} disabled={!vehicleIdImage || isIdentifying} className="w-full sm:w-auto">
+                      {isIdentifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4" />}
+                      Identifiera med AI
+                    </Button>
+                  </div>
+                  {vehicleIdImage && (
+                    <div className="mt-2">
+                       <img src={vehicleIdImage} alt="Förhandsgranskning av fordon" className="rounded-md aspect-video object-cover w-full max-w-sm" />
+                    </div>
+                  )}
+                </div>
+
+                <Separator className="my-6"/>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <FormField
