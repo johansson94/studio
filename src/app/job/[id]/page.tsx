@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -25,12 +26,21 @@ import {
   UserCircle,
   Phone,
   User as UserIcon,
+  PlayCircle,
+  Flag,
+  Check,
+  KeyRound,
+  FileText,
+  Clock,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import type { Job } from "@/lib/types";
+import type { Job, JobLogEntry } from "@/lib/types";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const getStatusClass = (status: Job["status"]) => {
   switch (status) {
@@ -58,6 +68,17 @@ const getVehicleIcon = (type: Job["vehicle"]["type"]) => {
   }
 };
 
+const getLogIcon = (event: JobLogEntry["event"]) => {
+    switch (event) {
+        case 'Job Started': return <PlayCircle className="h-4 w-4 text-blue-500" />;
+        case 'Arrived at Site': return <Flag className="h-4 w-4 text-yellow-500" />;
+        case 'Arrived at Destination': return <Check className="h-4 w-4 text-green-500" />;
+        case 'Job Completed': return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+        default: return <Clock className="h-4 w-4 text-muted-foreground" />;
+    }
+}
+
+
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const job = mockJobs.find((j) => j.id === params.id);
 
@@ -78,7 +99,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             Uppdrag: {job.id}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Detaljerad information om bärgningsuppdraget.
+            Detaljerad information och status för bärgningsuppdraget.
           </p>
         </div>
         <Badge className={cn("text-white text-base", getStatusClass(job.status))}>
@@ -89,6 +110,26 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Main Details Column */}
         <div className="md:col-span-2 space-y-6">
+          {/* Status & Actions Card */}
+          <Card>
+            <CardHeader>
+                <CardTitle>Status & Åtgärder</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+                {job.status === 'New' && <Button><PlayCircle /> Starta uppdrag</Button>}
+                {job.status === 'In Progress' && <Button variant="outline"><Flag /> Anlänt till plats</Button>}
+                {job.status === 'In Progress' && <Button variant="outline"><Check /> Klar på plats</Button>}
+                {job.status === 'In Progress' && <Button variant="outline"><Truck /> Bärga till verkstad</Button>}
+                {job.status === 'Completed' ? (
+                     <div className="text-sm text-green-600 font-medium flex items-center gap-2">
+                        <CheckCircle2 /> Uppdrag slutfört
+                    </div>
+                ) : (
+                    job.status !== 'New' && <Button><CheckCircle2 /> Slutför & Avsluta uppdrag</Button>
+                )}
+            </CardContent>
+          </Card>
+          
           {/* Customer Details Card */}
           <Card>
             <CardHeader>
@@ -162,6 +203,25 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
 
+           {/* Completion Details Card */}
+          {job.status === 'Completed' && (
+             <Card>
+                <CardHeader>
+                  <CardTitle>Avlämningsinformation</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                      <Label className="flex items-center gap-2 text-muted-foreground"><FileText className="h-4 w-4"/>Anteckningar</Label>
+                      <p className="text-sm p-3 bg-secondary rounded-md">{job.destinationNotes || "Inga anteckningar."}</p>
+                  </div>
+                  <div className="space-y-2">
+                      <Label className="flex items-center gap-2 text-muted-foreground"><KeyRound className="h-4 w-4"/>Nycklar</Label>
+                       <p className="text-sm p-3 bg-secondary rounded-md">{job.keysLocation || "Ej specificerat."}</p>
+                  </div>
+                </CardContent>
+            </Card>
+          )}
+
            {/* Actions Taken Card */}
           {job.actionsTaken && job.actionsTaken.length > 0 && (
              <Card>
@@ -176,6 +236,29 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </Badge>
                    ))}
                 </CardContent>
+            </Card>
+          )}
+
+          {/* This is a temporary card to add the completion notes, in a real app this would be part of the 'Complete Job' flow */}
+          {job.status === 'In Progress' && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Slutför uppdraget</CardTitle>
+                    <CardDescription>Fyll i detaljer om avlämning innan du avslutar uppdraget.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div>
+                        <Label htmlFor="destination-notes">Anteckningar om avlämning</Label>
+                        <Textarea id="destination-notes" placeholder="t.ex. Bilen parkerad på kundparkeringen..." />
+                    </div>
+                     <div>
+                        <Label htmlFor="keys-location">Nycklarnas placering</Label>
+                        <Textarea id="keys-location" placeholder="t.ex. I verkstadens nyckelskåp..." />
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button>Spara anteckningar</Button>
+                </CardFooter>
             </Card>
           )}
 
@@ -205,6 +288,28 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               )}
             </CardContent>
           </Card>
+          
+          {/* Logbook Card */}
+          {job.log && job.log.length > 0 && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Loggbok</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ul className="space-y-4">
+                        {job.log.map((entry, index) => (
+                            <li key={index} className="flex items-start gap-3">
+                                <div className="mt-1">{getLogIcon(entry.event)}</div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium">{entry.event}</p>
+                                    <p className="text-xs text-muted-foreground">{format(entry.timestamp, 'yyyy-MM-dd HH:mm')}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </CardContent>
+            </Card>
+          )}
 
           {/* Image Card */}
           <Card>

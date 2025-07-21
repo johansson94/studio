@@ -52,6 +52,9 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setDate(new Date().getDate() - 1)),
     assignedTo: "user-2",
     actionsTaken: ["Towing"],
+    log: [
+      { event: 'Job Reported', timestamp: new Date(new Date().setDate(new Date().getDate() - 1)) }
+    ]
   },
   {
     id: "RA-8464",
@@ -70,6 +73,12 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setHours(new Date().getHours() - 3)),
     assignedTo: "user-3",
     actionsTaken: ["Tire Change", "Towing"],
+    arrivalImage: 'https://placehold.co/600x400.png',
+    log: [
+      { event: 'Job Reported', timestamp: new Date(new Date().setHours(new Date().getHours() - 3)) },
+      { event: 'Job Started', timestamp: new Date(new Date().setHours(new Date().getHours() - 2.5)) },
+      { event: 'Arrived at Site', timestamp: new Date(new Date().setHours(new Date().getHours() - 1)) }
+    ]
   },
   {
     id: "RA-8465",
@@ -87,6 +96,9 @@ export const mockJobs: Job[] = [
     status: "New",
     reportedAt: new Date(new Date().setHours(new Date().getHours() - 1)),
     actionsTaken: ["Towing"],
+    log: [
+        { event: 'Job Reported', timestamp: new Date(new Date().setHours(new Date().getHours() - 1)) }
+    ]
   },
   {
     id: "RA-8466",
@@ -105,6 +117,17 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setDate(new Date().getDate() - 2)),
     assignedTo: "user-5",
     actionsTaken: ["Unlocking", "Towing"],
+    arrivalImage: 'https://placehold.co/600x400.png',
+    destinationImage: 'https://placehold.co/600x400.png',
+    destinationNotes: "Vehicle parked in bay 7. Keys handed over to reception.",
+    keysLocation: "Reception desk.",
+    log: [
+      { event: 'Job Reported', timestamp: new Date(new Date().setDate(new Date().getDate() - 2)) },
+      { event: 'Job Started', timestamp: new Date(new Date().setDate(new Date().getDate() - 2) + 1000 * 60 * 5) },
+      { event: 'Arrived at Site', timestamp: new Date(new Date().setDate(new Date().getDate() - 2) + 1000 * 60 * 30) },
+      { event: 'Arrived at Destination', timestamp: new Date(new Date().setDate(new Date().getDate() - 2) + 1000 * 60 * 90) },
+      { event: 'Job Completed', timestamp: new Date(new Date().setDate(new Date().getDate() - 2) + 1000 * 60 * 95) }
+    ]
   },
   {
     id: "RA-8467",
@@ -123,6 +146,15 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setDate(new Date().getDate() - 3)),
     assignedTo: "user-2",
     actionsTaken: ["Towing"],
+    destinationNotes: "Motorcycle parked in owner's garage.",
+    keysLocation: "Handed directly to owner.",
+    log: [
+        { event: 'Job Reported', timestamp: new Date(new Date().setDate(new Date().getDate() - 3)) },
+        { event: 'Job Started', timestamp: new Date(new Date().setDate(new Date().getDate() - 3) + 1000 * 60 * 10) },
+        { event: 'Arrived at Site', timestamp: new Date(new Date().setDate(new Date().getDate() - 3) + 1000 * 60 * 25) },
+        { event: 'Arrived at Destination', timestamp: new Date(new Date().setDate(new Date().getDate() - 3) + 1000 * 60 * 55) },
+        { event: 'Job Completed', timestamp: new Date(new Date().setDate(new Date().getDate() - 3) + 1000 * 60 * 60) },
+    ]
   },
   {
     id: "RA-8468",
@@ -141,6 +173,9 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setMinutes(new Date().getMinutes() - 15)),
     assignedTo: "user-3",
     actionsTaken: ["Towing"],
+    log: [
+        { event: 'Job Reported', timestamp: new Date(new Date().setMinutes(new Date().getMinutes() - 15)) }
+    ]
   },
 ];
 

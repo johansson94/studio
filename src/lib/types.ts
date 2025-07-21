@@ -3,6 +3,11 @@ export type UserRole = "Dispatcher" | "Driver";
 
 export type ActionTaken = "Jump Start" | "Tire Change" | "Towing" | "Unlocking" | "Fuel Delivery";
 
+export interface JobLogEntry {
+    event: 'Job Reported' | 'Job Started' | 'Arrived at Site' | 'Arrived at Destination' | 'Job Completed';
+    timestamp: Date;
+}
+
 export interface Job {
   id: string;
   customer: {
@@ -25,6 +30,9 @@ export interface Job {
   arrivalImage?: string;
   destinationImage?: string;
   actionsTaken?: ActionTaken[];
+  destinationNotes?: string;
+  keysLocation?: string;
+  log?: JobLogEntry[];
 }
 
 export interface Kpi {
