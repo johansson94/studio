@@ -1,0 +1,87 @@
+import type { Job } from "@/lib/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Car, MapPin, Truck, Bike, HardHat } from "lucide-react";
+
+interface JobCardProps {
+  job: Job;
+}
+
+const getStatusClass = (status: Job["status"]) => {
+  switch (status) {
+    case "New":
+      return "bg-blue-500 hover:bg-blue-600";
+    case "In Progress":
+      return "bg-yellow-500 hover:bg-yellow-600";
+    case "Completed":
+      return "bg-green-500 hover:bg-green-600";
+  }
+};
+
+const getVehicleIcon = (type: Job["vehicle"]["type"]) => {
+  switch (type) {
+    case "Car":
+      return <Car className="h-4 w-4" />;
+    case "Truck":
+      return <Truck className="h-4 w-4" />;
+    case "Motorcycle":
+      return <Bike className="h-4 w-4" />;
+    case "Van":
+      return <HardHat className="h-4 w-4" />;
+    default:
+      return <Car className="h-4 w-4" />;
+  }
+};
+
+export function JobCard({ job }: JobCardProps) {
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-headline text-lg">{job.id}</CardTitle>
+          <Badge
+            className={cn(
+              "text-white",
+              getStatusClass(job.status)
+            )}
+          >
+            {job.status}
+          </Badge>
+        </div>
+        <CardDescription>
+          {job.vehicle.make} {job.vehicle.model} - {job.vehicle.licensePlate}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-grow space-y-3">
+        <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            {getVehicleIcon(job.vehicle.type)}
+            <span>{job.vehicle.type}</span>
+          </div>
+        </div>
+        <div className="flex items-start gap-2 text-sm">
+          <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+          <p className="font-medium">{job.location}</p>
+        </div>
+
+        <p className="text-sm text-muted-foreground pt-2 italic line-clamp-2">
+          "{job.description}"
+        </p>
+      </CardContent>
+      <CardFooter>
+        <Button className="w-full" variant="outline">
+          View Details
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
