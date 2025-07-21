@@ -249,7 +249,7 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
     }
   };
 
-  const handleGenerateReport = async () => {
+  const handleGenerateTripReport = async () => {
     const startFee = Number(startFeeRef.current?.value);
     const costPerKm = Number(costPerKmRef.current?.value);
 
@@ -350,11 +350,16 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
         return;
     }
     setIsGeneratingInsuranceReport(true);
+    setInsuranceReport(null);
     try {
         const reportData = {
             job: {
                 ...job,
-                reportedAt: job.reportedAt.toISOString(),
+                reportedAt: format(job.reportedAt, "yyyy-MM-dd HH:mm"),
+                vin: job.vehicle.vin || 'N/A',
+                driverDiagnosis: job.driverDiagnosis || [],
+                actionsTaken: job.actionsTaken || [],
+                insuranceCompany: job.insuranceCompany || 'N/A',
             }
         };
         const result = await generateInsuranceReport(reportData);
@@ -603,7 +608,7 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                                     <Input ref={costPerKmRef} id="cost-per-km" type="number" placeholder="25" defaultValue="25" />
                                 </div>
                             </div>
-                           <Button variant="outline" onClick={handleGenerateReport} disabled={isCalculating} className="w-full">
+                           <Button variant="outline" onClick={handleGenerateTripReport} disabled={isCalculating} className="w-full">
                               {isCalculating ? <Loader2 className="animate-spin" /> : <Calculator />}
                               Beräkna Resa & Kostnad
                             </Button>
@@ -730,7 +735,7 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                                 <Button 
                                     variant="outline" 
                                     className="w-full"
-                                    onClick={handleGenerateInsuranceReport} 
+                                    onClick={handleGenerateInsuranceReport}
                                     disabled={isGeneratingInsuranceReport}
                                 >
                                     {isGeneratingInsuranceReport ? <Loader2 className="animate-spin" /> : <FileSpreadsheet />}
@@ -741,16 +746,21 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Rapport för Försäkringsbolag</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        Detta är en förhandsgranskning av rapporten som skickas till försäkringsbolaget.
+                                        Detta är en förhandsgranskning av rapporten som kan skickas till försäkringsbolaget.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
-                                {insuranceReport ? (
-                                     <div className="prose prose-sm dark:prose-invert max-h-[60vh] overflow-y-auto bg-secondary p-4 rounded-md">
+                                {isGeneratingInsuranceReport && !insuranceReport ? (
+                                    <div className="flex items-center justify-center h-40">
+                                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground"/>
+                                        <span className="sr-only">Rapporten genereras...</span>
+                                    </div>
+                                ) : insuranceReport ? (
+                                     <div className="prose prose-sm dark:prose-invert max-h-[60vh] overflow-y-auto bg-secondary p-4 rounded-md border">
                                         <div dangerouslySetInnerHTML={{ __html: insuranceReport.replace(/\n/g, '<br />').replace(/## (.*?)<br \/>/g, '<h2>$1</h2>').replace(/### (.*?)<br \/>/g, '<h3>$1</h3>') }} />
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center h-40">
-                                        <p>Rapporten genereras...</p>
+                                        <p className="text-muted-foreground">Klicka på knappen för att generera rapporten.</p>
                                     </div>
                                 )}
                                 <AlertDialogFooter>
@@ -758,7 +768,6 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
-
                     </CardContent>
                 </Card>
             )}
