@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Map,
   PlusCircle,
+  Users,
 } from "lucide-react";
 
 import {
@@ -26,23 +27,28 @@ import { Icons } from "@/components/icons";
 const menuItems = [
   {
     href: "/",
-    label: "Jobs",
+    label: "Uppdrag",
     icon: ClipboardList,
   },
   {
     href: "/dashboard",
-    label: "Dashboard",
+    label: "Översikt",
     icon: LayoutDashboard,
   },
   {
     href: "/new-report",
-    label: "New Report",
+    label: "Ny Rapport",
     icon: PlusCircle,
   },
   {
     href: "/route-optimizer",
-    label: "Route Optimizer",
+    label: "Ruttoptimering",
     icon: Map,
+  },
+  {
+    href: "/users",
+    label: "Användare",
+    icon: Users,
   },
 ];
 

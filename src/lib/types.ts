@@ -1,4 +1,7 @@
 export type JobStatus = "New" | "In Progress" | "Completed";
+export type UserRole = "Dispatcher" | "Driver";
+
+export type ActionTaken = "Jump Start" | "Tire Change" | "Towing" | "Unlocking" | "Fuel Delivery";
 
 export interface Job {
   id: string;
@@ -7,12 +10,16 @@ export interface Job {
     model: string;
     licensePlate: string;
     type: "Car" | "Motorcycle" | "Truck" | "Van";
+    mileage: number;
   };
   location: string;
   destination: string;
   description: string;
   status: JobStatus;
   reportedAt: Date;
+  arrivalImage?: string;
+  destinationImage?: string;
+  actionsTaken?: ActionTaken[];
 }
 
 export interface Kpi {
@@ -20,4 +27,11 @@ export interface Kpi {
   value: string;
   description: string;
   icon: React.ElementType;
+}
+
+export interface User {
+    id: string;
+    name: string;
+    role: UserRole;
+    avatar: string;
 }
