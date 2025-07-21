@@ -47,10 +47,12 @@ import {
   MicOff,
   Building,
   FileSpreadsheet,
+  Sparkles,
+  Lightbulb,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import type { Job, JobLogEntry, VehicleProblem } from "@/lib/types";
+import type { Job, JobLogEntry, VehicleProblem, User } from "@/lib/types";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -75,6 +77,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { suggestDriver } from "@/ai/flows/suggest-driver";
 
 
 const getStatusClass = (status: Job["status"]) => {
@@ -175,6 +178,10 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
   const [isGeneratingInsuranceReport, setIsGeneratingInsuranceReport] = React.useState(false);
   const [insuranceReport, setInsuranceReport] = React.useState<string | null>(null);
 
+  const [isSuggestingDriver, setIsSuggestingDriver] = React.useState(false);
+  const [suggestedDriver, setSuggestedDriver] = React.useState<{ driver: User; reason: string } | null>(null);
+
+
   const destinationNotesRef = React.useRef<HTMLTextAreaElement>(null);
   const keysLocationRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -270,6 +277,47 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
       setIsCalculating(false);
     }
   };
+
+  const handleSuggestDriver = async () => {
+    setIsSuggestingDriver(true);
+    setSuggestedDriver(null);
+    try {
+      const availableDrivers = mockUsers.filter(u => u.role === 'Driver');
+      const result = await suggestDriver({
+        job: {
+          location: job.location,
+          vehicleType: job.vehicle.type,
+        },
+        drivers: availableDrivers.map(d => ({
+          id: d.id,
+          name: d.name,
+          position: d.position,
+          vehicleType: d.assignedVehicle ? (d.assignedVehicle.model.includes('Scania') || d.assignedVehicle.model.includes('Volvo FH') ? 'Truck' : 'Car') : 'Car',
+        })),
+      });
+
+      const driver = mockUsers.find(u => u.id === result.driverId);
+      if (driver) {
+        setSuggestedDriver({ driver, reason: result.reason });
+        toast({
+            title: "Förare rekommenderad!",
+            description: `${driver.name} är det bästa valet.`,
+        });
+      } else {
+        throw new Error("Suggested driver not found");
+      }
+    } catch (error) {
+      console.error("Failed to suggest driver:", error);
+      toast({
+        variant: "destructive",
+        title: "Fel vid förslag",
+        description: "Kunde inte rekommendera en förare.",
+      });
+    } finally {
+      setIsSuggestingDriver(false);
+    }
+  };
+
 
   const handleGenerateInsuranceReport = async () => {
     if (!job.costs) {
@@ -695,7 +743,35 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Ej tilldelad</p>
+                <div className="text-sm text-muted-foreground space-y-4">
+                  <p>Ej tilldelad</p>
+                  <Button variant="outline" className="w-full" onClick={handleSuggestDriver} disabled={isSuggestingDriver}>
+                    {isSuggestingDriver ? <Loader2 className="animate-spin" /> : <Lightbulb />}
+                    Hitta bästa förare
+                  </Button>
+                  {isSuggestingDriver && (
+                    <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Analyserar förare...</span>
+                    </div>
+                  )}
+                  {suggestedDriver && (
+                    <div className="bg-secondary p-3 rounded-md border">
+                        <p className="font-semibold text-secondary-foreground flex items-center gap-2"><Sparkles className="h-4 w-4 text-yellow-500" /> Rekommendation</p>
+                        <div className="flex items-center gap-3 mt-3">
+                             <Avatar className="h-10 w-10">
+                                <AvatarImage src={suggestedDriver.driver.avatar} data-ai-hint="person portrait" />
+                                <AvatarFallback>{suggestedDriver.driver.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-semibold text-secondary-foreground">{suggestedDriver.driver.name}</p>
+                                <p className="text-xs text-muted-foreground italic">"{suggestedDriver.reason}"</p>
+                            </div>
+                        </div>
+                        <Button size="sm" className="w-full mt-3">Tilldela {suggestedDriver.driver.name}</Button>
+                    </div>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>
