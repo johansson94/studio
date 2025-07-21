@@ -3,6 +3,8 @@ export type UserRole = "Dispatcher" | "Driver";
 
 export type ActionTaken = "Jump Start" | "Tire Change" | "Towing" | "Unlocking" | "Fuel Delivery";
 
+export type VehicleProblem = "Engine Failure" | "Flat Tire" | "Battery Issue" | "Brake Failure" | "Lockout" | "Accident";
+
 export interface JobLogEntry {
     event: 'Job Reported' | 'Job Started' | 'Arrived at Site' | 'Arrived at Destination' | 'Job Completed';
     timestamp: Date;
@@ -36,6 +38,8 @@ export interface Job {
   arrivalImage?: string;
   destinationImage?: string;
   actionsTaken?: ActionTaken[];
+  driverDiagnosis?: VehicleProblem[];
+  tmaUsed?: boolean;
   destinationNotes?: string;
   keysLocation?: string;
   log?: JobLogEntry[];

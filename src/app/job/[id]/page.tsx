@@ -32,15 +32,19 @@ import {
   KeyRound,
   FileText,
   Clock,
+  ShieldAlert,
+  ClipboardCheck,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import type { Job, JobLogEntry } from "@/lib/types";
+import type { Job, JobLogEntry, VehicleProblem } from "@/lib/types";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 
 const getStatusClass = (status: Job["status"]) => {
   switch (status) {
@@ -77,6 +81,15 @@ const getLogIcon = (event: JobLogEntry["event"]) => {
         default: return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
 }
+
+const vehicleProblems: { id: VehicleProblem; label: string }[] = [
+    { id: "Engine Failure", label: "Motorfel" },
+    { id: "Flat Tire", label: "Punktering" },
+    { id: "Battery Issue", label: "Batteriproblem" },
+    { id: "Brake Failure", label: "Bromsfel" },
+    { id: "Lockout", label: "Låsöppning" },
+    { id: "Accident", label: "Olycka" },
+];
 
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
@@ -202,6 +215,64 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 </div>
             </CardContent>
           </Card>
+
+            {/* On-Site Assessment Card (for driver) */}
+            {job.status === 'In Progress' && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Bedömning på plats</CardTitle>
+                        <CardDescription>Fyll i efter att du anlänt och inspekterat fordonet.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-3">
+                             <Label className="flex items-center gap-2"><ClipboardCheck className="h-4 w-4"/>Problem som identifierats</Label>
+                             <div className="grid grid-cols-2 gap-3">
+                                {vehicleProblems.map(item => (
+                                    <div key={item.id} className="flex items-center gap-2">
+                                        <Checkbox id={`problem-${item.id}`} />
+                                        <Label htmlFor={`problem-${item.id}`} className="font-normal">{item.label}</Label>
+                                    </div>
+                                ))}
+                             </div>
+                        </div>
+                        <Separator />
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="tma-used" className="flex items-center gap-2"><ShieldAlert className="h-4 w-4"/>TMA-bil använd?</Label>
+                            <Switch id="tma-used" />
+                        </div>
+                    </CardContent>
+                     <CardFooter>
+                        <Button>Spara bedömning</Button>
+                    </CardFooter>
+                </Card>
+            )}
+
+            {/* Driver Diagnosis Display Card */}
+          {(job.driverDiagnosis && job.driverDiagnosis.length > 0 || job.tmaUsed !== undefined) && (
+             <Card>
+                <CardHeader>
+                  <CardTitle>Förarens bedömning</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {job.driverDiagnosis && job.driverDiagnosis.length > 0 && (
+                        <div>
+                            <h4 className="font-semibold mb-2 flex items-center gap-2"><ClipboardCheck className="h-4 w-4"/>Identifierade problem</h4>
+                            <div className="flex flex-wrap gap-2">
+                            {job.driverDiagnosis.map(problem => (
+                                <Badge key={problem} variant="secondary" className="text-base">{problem}</Badge>
+                            ))}
+                            </div>
+                        </div>
+                    )}
+                     {job.tmaUsed !== undefined && (
+                         <div>
+                             <h4 className="font-semibold mb-2 flex items-center gap-2"><ShieldAlert className="h-4 w-4"/>TMA-bil användes</h4>
+                             <p className="text-sm p-3 bg-secondary rounded-md">{job.tmaUsed ? "Ja" : "Nej"}</p>
+                        </div>
+                     )}
+                </CardContent>
+            </Card>
+          )}
 
            {/* Completion Details Card */}
           {job.status === 'Completed' && (

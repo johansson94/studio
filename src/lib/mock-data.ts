@@ -68,6 +68,8 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setDate(new Date().getDate() - 1)),
     assignedTo: "user-2",
     actionsTaken: ["Towing"],
+    driverDiagnosis: ["Engine Failure"],
+    tmaUsed: true,
     log: [
       { event: 'Job Reported', timestamp: new Date(new Date().setDate(new Date().getDate() - 1)) }
     ]
@@ -90,6 +92,8 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setHours(new Date().getHours() - 3)),
     assignedTo: "user-3",
     actionsTaken: ["Tire Change", "Towing"],
+    driverDiagnosis: ["Flat Tire"],
+    tmaUsed: false,
     arrivalImage: 'https://placehold.co/600x400.png',
     log: [
       { event: 'Job Reported', timestamp: new Date(new Date().setHours(new Date().getHours() - 3)) },
@@ -136,6 +140,8 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setDate(new Date().getDate() - 2)),
     assignedTo: "user-5",
     actionsTaken: ["Unlocking", "Towing"],
+    driverDiagnosis: ["Lockout"],
+    tmaUsed: false,
     arrivalImage: 'https://placehold.co/600x400.png',
     destinationImage: 'https://placehold.co/600x400.png',
     destinationNotes: "Vehicle parked in bay 7. Keys handed over to reception.",
@@ -194,6 +200,7 @@ export const mockJobs: Job[] = [
     reportedAt: new Date(new Date().setMinutes(new Date().getMinutes() - 15)),
     assignedTo: "user-3",
     actionsTaken: ["Towing"],
+    driverDiagnosis: ["Battery Issue"],
     log: [
         { event: 'Job Reported', timestamp: new Date(new Date().setMinutes(new Date().getMinutes() - 15)) }
     ]
