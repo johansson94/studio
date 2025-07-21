@@ -1,4 +1,4 @@
-import { mockJobs } from "@/lib/mock-data";
+import { mockJobs, mockUsers } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import {
   Card,
@@ -22,11 +22,15 @@ import {
   CheckCircle2,
   Image as ImageIcon,
   ArrowRight,
+  UserCircle,
+  Phone,
+  User as UserIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Job } from "@/lib/types";
 import { format } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const getStatusClass = (status: Job["status"]) => {
   switch (status) {
@@ -61,6 +65,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
     notFound();
   }
 
+  const assignedDriver = job.assignedTo
+    ? mockUsers.find((u) => u.id === job.assignedTo)
+    : null;
+
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
       {/* Header */}
@@ -81,6 +89,23 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Main Details Column */}
         <div className="md:col-span-2 space-y-6">
+          {/* Customer Details Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><UserCircle className="h-6 w-6"/>Kundinformation</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-2">
+                <UserIcon className="h-4 w-4 text-muted-foreground" />
+                <span>Namn: <strong>{job.customer.name}</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <span>Telefon: <strong>{job.customer.phone}</strong></span>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Vehicle Details Card */}
           <Card>
             <CardHeader>
@@ -156,8 +181,32 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
         </div>
 
-        {/* Image Column */}
+        {/* Right Column: Driver & Images */}
         <div className="space-y-6">
+          {/* Assigned Driver Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><UserIcon className="h-5 w-5" />Tilldelad Förare</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {assignedDriver ? (
+                <div className="flex items-center gap-4">
+                  <Avatar>
+                    <AvatarImage src={assignedDriver.avatar} data-ai-hint="person portrait" />
+                    <AvatarFallback>{assignedDriver.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">{assignedDriver.name}</p>
+                    <p className="text-sm text-muted-foreground">{assignedDriver.role}</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Ej tilldelad</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Image Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5" />Bilder</CardTitle>

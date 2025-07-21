@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -27,8 +27,9 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Car, HardHat, Bike, Truck, Camera, ImagePlus, CheckCircle2 } from "lucide-react";
+import { User, Car, HardHat, Bike, Truck, Camera, ImagePlus, CheckCircle2, Phone, UserCircle, Users } from "lucide-react";
 import type { ActionTaken } from "@/lib/types";
+import { mockUsers } from "@/lib/mock-data";
 
 const actions: { id: ActionTaken; label: string }[] = [
     { id: "Towing", label: "Bärgning" },
@@ -39,6 +40,8 @@ const actions: { id: ActionTaken; label: string }[] = [
 ];
 
 const formSchema = z.object({
+  customerName: z.string().min(2, "Kundnamn måste vara minst 2 tecken."),
+  customerPhone: z.string().min(5, "Telefonnummer måste vara minst 5 tecken."),
   vehicleMake: z.string().min(2, "Tillverkare måste vara minst 2 tecken."),
   vehicleModel: z.string().min(1, "Modell är obligatoriskt."),
   licensePlate: z
@@ -50,6 +53,7 @@ const formSchema = z.object({
   location: z.string().min(5, "Plats måste vara minst 5 tecken."),
   destination: z.string().min(5, "Destination måste vara minst 5 tecken."),
   description: z.string().min(10, "Beskrivning måste vara minst 10 tecken."),
+  assignedTo: z.string().optional(),
   arrivalImage: z.string().optional(),
   destinationImage: z.string().optional(),
   actionsTaken: z.array(z.string()).optional(),
@@ -68,6 +72,8 @@ export function NewReportForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      customerName: "",
+      customerPhone: "",
       vehicleMake: "",
       vehicleModel: "",
       licensePlate: "",
@@ -106,18 +112,58 @@ export function NewReportForm() {
     setArrivalImagePreview(null);
     setDestinationImagePreview(null);
   }
+  
+  const drivers = mockUsers.filter(user => user.role === 'Driver');
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Vehicle & Job Details */}
+          {/* Left Column: Details */}
           <div className="lg:col-span-2 space-y-8">
             <Card>
-              <CardContent className="pt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><UserCircle className="h-6 w-6" /> Kundinformation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <FormField
+                    control={form.control}
+                    name="customerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Namn</FormLabel>
+                        <FormControl>
+                          <Input placeholder="t.ex. Kalle Anka" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="customerPhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Telefonnummer</FormLabel>
+                        <FormControl>
+                          <Input placeholder="t.ex. 070-1234567" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                 <CardTitle className="flex items-center gap-2"><Car className="h-6 w-6" /> Fordons- & Uppdragsdetaljer</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
-                    <h3 className="font-headline text-lg font-semibold">Fordonsdetaljer</h3>
                     <FormField
                       control={form.control}
                       name="vehicleMake"
@@ -196,7 +242,6 @@ export function NewReportForm() {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="font-headline text-lg font-semibold">Uppdragsdetaljer</h3>
                     <FormField
                       control={form.control}
                       name="location"
@@ -247,92 +292,127 @@ export function NewReportForm() {
             </Card>
           </div>
 
-          {/* Right Column: Actions & Images */}
+          {/* Right Column: Actions & Assignment */}
           <div className="space-y-8">
             <Card>
-                <CardContent className="pt-6 space-y-6">
-                    <div>
-                        <h3 className="font-headline text-lg font-semibold mb-4 flex items-center gap-2"><CheckCircle2 className="h-5 w-5"/> Vidtagna åtgärder</h3>
-                        <FormField
-                          control={form.control}
-                          name="actionsTaken"
-                          render={() => (
-                            <FormItem className="space-y-3">
-                              {actions.map((item) => (
-                                <FormField
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Tilldela Förare</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="assignedTo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Välj en förare</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Tilldela uppdraget..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="unassigned">Ej tilldelad</SelectItem>
+                          {drivers.map(driver => (
+                            <SelectItem key={driver.id} value={driver.id}>{driver.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5"/> Vidtagna åtgärder</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FormDescription className="mb-4">
+                    Fylls i av föraren på plats.
+                  </FormDescription>
+                  <FormField
+                    control={form.control}
+                    name="actionsTaken"
+                    render={() => (
+                      <FormItem className="space-y-3">
+                        {actions.map((item) => (
+                          <FormField
+                            key={item.id}
+                            control={form.control}
+                            name="actionsTaken"
+                            render={({ field }) => {
+                              return (
+                                <FormItem
                                   key={item.id}
-                                  control={form.control}
-                                  name="actionsTaken"
-                                  render={({ field }) => {
-                                    return (
-                                      <FormItem
-                                        key={item.id}
-                                        className="flex flex-row items-start space-x-3 space-y-0"
-                                      >
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={field.value?.includes(item.id)}
-                                            onCheckedChange={(checked) => {
-                                              return checked
-                                                ? field.onChange([...(field.value || []), item.id])
-                                                : field.onChange(
-                                                    field.value?.filter(
-                                                      (value) => value !== item.id
-                                                    )
-                                                  )
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">
-                                          {item.label}
-                                        </FormLabel>
-                                      </FormItem>
-                                    )
-                                  }}
-                                />
-                              ))}
-                            </FormItem>
-                          )}
-                        />
-                    </div>
+                                  className="flex flex-row items-start space-x-3 space-y-0"
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(item.id)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...(field.value || []), item.id])
+                                          : field.onChange(
+                                              field.value?.filter(
+                                                (value) => value !== item.id
+                                              )
+                                            )
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                    {item.label}
+                                  </FormLabel>
+                                </FormItem>
+                              )
+                            }}
+                          />
+                        ))}
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
             </Card>
+            
             <Card>
-              <CardContent className="pt-6 space-y-6">
-                 <div>
-                    <h3 className="font-headline text-lg font-semibold mb-4 flex items-center gap-2"><Camera className="h-5 w-5"/> Bilder</h3>
-                    <div className="space-y-4">
-                        {/* Arrival Image */}
-                        <div className="space-y-2">
-                            <FormLabel>Bild vid ankomst</FormLabel>
-                            <Input 
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                ref={arrivalImageRef} 
-                                onChange={(e) => handleImageChange(e, "arrivalImage", setArrivalImagePreview)}
-                            />
-                            <Button type="button" variant="outline" onClick={() => arrivalImageRef.current?.click()} className="w-full">
-                                <ImagePlus className="mr-2 h-4 w-4"/> Ladda upp bild
-                            </Button>
-                            {arrivalImagePreview && <img src={arrivalImagePreview} alt="Förhandsgranskning ankomst" className="mt-2 rounded-md aspect-video object-cover w-full" />}
-                        </div>
+              <CardHeader>
+                 <CardTitle className="flex items-center gap-2"><Camera className="h-5 w-5"/> Bilder</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                 <div className="space-y-4">
+                    {/* Arrival Image */}
+                    <div className="space-y-2">
+                        <FormLabel>Bild vid ankomst</FormLabel>
+                        <Input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            ref={arrivalImageRef} 
+                            onChange={(e) => handleImageChange(e, "arrivalImage", setArrivalImagePreview)}
+                        />
+                        <Button type="button" variant="outline" onClick={() => arrivalImageRef.current?.click()} className="w-full">
+                            <ImagePlus className="mr-2 h-4 w-4"/> Ladda upp bild
+                        </Button>
+                        {arrivalImagePreview && <img src={arrivalImagePreview} alt="Förhandsgranskning ankomst" className="mt-2 rounded-md aspect-video object-cover w-full" />}
+                    </div>
 
-                        {/* Destination Image */}
-                        <div className="space-y-2">
-                           <FormLabel>Bild vid destination</FormLabel>
-                           <Input 
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                ref={destinationImageRef} 
-                                onChange={(e) => handleImageChange(e, "destinationImage", setDestinationImagePreview)}
-                            />
-                            <Button type="button" variant="outline" onClick={() => destinationImageRef.current?.click()} className="w-full">
-                                <ImagePlus className="mr-2 h-4 w-4"/> Ladda upp bild
-                            </Button>
-                           {destinationImagePreview && <img src={destinationImagePreview} alt="Förhandsgranskning destination" className="mt-2 rounded-md aspect-video object-cover w-full" />}
-                        </div>
+                    {/* Destination Image */}
+                    <div className="space-y-2">
+                       <FormLabel>Bild vid destination</FormLabel>
+                       <Input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            ref={destinationImageRef} 
+                            onChange={(e) => handleImageChange(e, "destinationImage", setDestinationImagePreview)}
+                        />
+                        <Button type="button" variant="outline" onClick={() => destinationImageRef.current?.click()} className="w-full">
+                            <ImagePlus className="mr-2 h-4 w-4"/> Ladda upp bild
+                        </Button>
+                       {destinationImagePreview && <img src={destinationImagePreview} alt="Förhandsgranskning destination" className="mt-2 rounded-md aspect-video object-cover w-full" />}
                     </div>
                 </div>
               </CardContent>
@@ -341,7 +421,7 @@ export function NewReportForm() {
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" size="lg">Skicka rapport</Button>
+          <Button type="submit" size="lg">Skapa uppdrag</Button>
         </div>
       </form>
     </Form>

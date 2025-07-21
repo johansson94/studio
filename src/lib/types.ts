@@ -5,6 +5,10 @@ export type ActionTaken = "Jump Start" | "Tire Change" | "Towing" | "Unlocking" 
 
 export interface Job {
   id: string;
+  customer: {
+    name: string;
+    phone: string;
+  };
   vehicle: {
     make: string;
     model: string;
@@ -17,6 +21,7 @@ export interface Job {
   description: string;
   status: JobStatus;
   reportedAt: Date;
+  assignedTo?: string; // User ID of the driver
   arrivalImage?: string;
   destinationImage?: string;
   actionsTaken?: ActionTaken[];
