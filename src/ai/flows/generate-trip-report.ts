@@ -16,6 +16,10 @@ const GenerateTripReportInputSchema = z.object({
   startLocation: z.string().describe('The current location of the bärgare.'),
   breakdownLocation: z.string().describe('The location of the vehicle breakdown.'),
   destination: z.string().describe('The final destination for the vehicle.'),
+  pricing: z.object({
+    startFee: z.number().describe('The base fee for any job.'),
+    costPerKm: z.number().describe('The cost per kilometer.'),
+  }).describe('The pricing model for the company.'),
 });
 export type GenerateTripReportInput = z.infer<typeof GenerateTripReportInputSchema>;
 
@@ -33,9 +37,6 @@ export async function generateTripReport(input: GenerateTripReportInput): Promis
   return generateTripReportFlow(input);
 }
 
-const START_FEE = 500; // Base fee for any job
-const COST_PER_KM = 25; // Cost per kilometer
-
 const generateTripReportFlow = ai.defineFlow(
   {
     name: 'generateTripReportFlow',
@@ -44,17 +45,21 @@ const generateTripReportFlow = ai.defineFlow(
   },
   async (input) => {
     // 1. Get the optimized route and distance
-    const routeInfo = await optimizeRoute(input);
+    const routeInfo = await optimizeRoute({
+        startLocation: input.startLocation,
+        breakdownLocation: input.breakdownLocation,
+        destination: input.destination,
+    });
     const distanceKm = parseInt(routeInfo.estimatedDistance.replace(' km', ''), 10);
 
-    // 2. Calculate costs
-    const mileageCost = distanceKm * COST_PER_KM;
-    const totalCost = START_FEE + mileageCost;
+    // 2. Calculate costs based on dynamic pricing
+    const mileageCost = distanceKm * input.pricing.costPerKm;
+    const totalCost = input.pricing.startFee + mileageCost;
 
-    // For this app, let's assume the deductible is a fixed base fee
+    // For this app, let's assume the deductible is the start fee
     // and the mileage cost is booked as "other fees".
     const costs = {
-      deductible: START_FEE,
+      deductible: input.pricing.startFee,
       otherFees: Math.round(mileageCost),
       total: Math.round(totalCost),
     };

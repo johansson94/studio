@@ -207,6 +207,8 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
 
   const deductibleRef = React.useRef<HTMLInputElement>(null);
   const otherFeesRef = React.useRef<HTMLInputElement>(null);
+  const startFeeRef = React.useRef<HTMLInputElement>(null);
+  const costPerKmRef = React.useRef<HTMLInputElement>(null);
 
 
   if (!job) {
@@ -248,6 +250,18 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
   };
 
   const handleGenerateReport = async () => {
+    const startFee = Number(startFeeRef.current?.value);
+    const costPerKm = Number(costPerKmRef.current?.value);
+
+    if (isNaN(startFee) || isNaN(costPerKm)) {
+        toast({
+            variant: "destructive",
+            title: "Ogiltiga Priser",
+            description: "Vänligen ange giltiga siffror för startavgift och kilometerkostnad.",
+        });
+        return;
+    }
+
     setIsCalculating(true);
     try {
       const driver = mockUsers.find(u => u.id === job.assignedTo);
@@ -255,6 +269,10 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
         startLocation: driver?.assignedVehicle ? `${driver.name}s startposition` : "Bärgningsstation, Stockholm",
         breakdownLocation: job.location,
         destination: job.destination,
+        pricing: {
+            startFee,
+            costPerKm,
+        }
       });
 
       if (deductibleRef.current) {
@@ -573,11 +591,25 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                         <CardDescription>Fyll i kostnader för uppdraget innan det slutförs.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                       <Button variant="outline" onClick={handleGenerateReport} disabled={isCalculating} className="w-full mb-4">
-                          {isCalculating ? <Loader2 className="animate-spin" /> : <Calculator />}
-                          Generera Reserapport & Kostnad
-                        </Button>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div className="p-4 bg-secondary rounded-lg space-y-4">
+                           <h4 className="font-semibold text-sm">Prisberäkning</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <div className="space-y-2">
+                                    <Label htmlFor="start-fee">Startavgift (SEK)</Label>
+                                    <Input ref={startFeeRef} id="start-fee" type="number" placeholder="500" defaultValue="500" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="cost-per-km">Kostnad/km (SEK)</Label>
+                                    <Input ref={costPerKmRef} id="cost-per-km" type="number" placeholder="25" defaultValue="25" />
+                                </div>
+                            </div>
+                           <Button variant="outline" onClick={handleGenerateReport} disabled={isCalculating} className="w-full">
+                              {isCalculating ? <Loader2 className="animate-spin" /> : <Calculator />}
+                              Beräkna Resa & Kostnad
+                            </Button>
+                       </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                             <div className="space-y-2">
                                 <Label htmlFor="deductible" className="flex items-center gap-2"><ReceiptText className="h-4 w-4"/>Självrisk (SEK)</Label>
                                 <Input ref={deductibleRef} id="deductible" type="number" placeholder="0" defaultValue={job.costs?.deductible} />
