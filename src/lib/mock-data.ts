@@ -13,14 +13,22 @@ export const mockUsers: User[] = [
     name: "Erik Johansson",
     role: "Driver",
     avatar: "https://placehold.co/100x100.png",
-    position: { lat: 59.33258, lng: 18.0649 } // Stockholm City
+    position: { lat: 59.33258, lng: 18.0649 }, // Stockholm City
+    assignedVehicle: {
+      licensePlate: "TRW 111",
+      model: "Scania R450",
+    }
   },
   {
     id: "user-3",
     name: "Maria Nilsson",
     role: "Driver",
     avatar: "https://placehold.co/100x100.png",
-    position: { lat: 59.8586, lng: 17.6389 } // Uppsala
+    position: { lat: 59.8586, lng: 17.6389 }, // Uppsala
+    assignedVehicle: {
+      licensePlate: "TRW 222",
+      model: "Volvo FH16",
+    }
   },
   {
     id: "user-4",
@@ -33,7 +41,11 @@ export const mockUsers: User[] = [
     name: "Sofia Karlsson",
     role: "Driver",
     avatar: "https://placehold.co/100x100.png",
-    position: { lat: 59.6519, lng: 17.9383 } // Arlanda
+    position: { lat: 59.6519, lng: 17.9383 }, // Arlanda
+     assignedVehicle: {
+      licensePlate: "TRW 333",
+      model: "Mercedes Actros",
+    }
   }
 ];
 

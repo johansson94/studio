@@ -54,4 +54,8 @@ export interface User {
     role: UserRole;
     avatar: string;
     position?: Position;
+    assignedVehicle?: {
+        licensePlate: string;
+        model: string;
+    };
 }

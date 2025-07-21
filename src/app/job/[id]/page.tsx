@@ -278,9 +278,14 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <AvatarImage src={assignedDriver.avatar} data-ai-hint="person portrait" />
                     <AvatarFallback>{assignedDriver.name.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  <div>
+                  <div className="text-sm">
                     <p className="font-semibold">{assignedDriver.name}</p>
-                    <p className="text-sm text-muted-foreground">{assignedDriver.role}</p>
+                    <p className="text-muted-foreground">{assignedDriver.role}</p>
+                     {assignedDriver.assignedVehicle && (
+                      <p className="text-muted-foreground flex items-center gap-1 mt-1">
+                        <Truck className="h-4 w-4" /> {assignedDriver.assignedVehicle.licensePlate}
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (

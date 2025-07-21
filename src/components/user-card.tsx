@@ -1,7 +1,8 @@
 import type { User } from "@/lib/types";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Truck } from "lucide-react";
 
 interface UserCardProps {
   user: User;
@@ -20,17 +21,29 @@ export function UserCard({ user }: UserCardProps) {
   };
 
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader className="items-center text-center">
         <Avatar className="h-20 w-20 mb-2">
           <AvatarImage src={user.avatar} alt={user.name} data-ai-hint="person portrait" />
           <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <h3 className="font-semibold text-lg">{user.name}</h3>
-      </CardHeader>
-      <CardContent className="flex justify-center">
         <Badge className={getRoleClass(user.role)}>{user.role}</Badge>
-      </CardContent>
+      </CardHeader>
+      {user.role === 'Driver' && user.assignedVehicle && (
+        <CardContent className="flex-grow flex flex-col items-center justify-center text-center">
+            <p className="text-sm text-muted-foreground">{user.assignedVehicle.model}</p>
+            <p className="text-sm font-semibold">{user.assignedVehicle.licensePlate}</p>
+        </CardContent>
+      )}
+       {user.role === 'Driver' && (
+         <CardFooter className="flex justify-center pt-4">
+            <div className="flex items-center gap-2 text-muted-foreground">
+                <Truck className="h-5 w-5" />
+                <span className="text-sm">Bärgningsbil</span>
+            </div>
+        </CardFooter>
+       )}
     </Card>
   );
 }
