@@ -106,8 +106,8 @@ const vehicleProblems: { id: VehicleProblem; label: string }[] = [
 ];
 
 
-export default function JobDetailPage({ params }: { params: { id: string } }) {
-  const job = mockJobs.find((j) => j.id === params.id);
+export default function JobDetailPage({ params: { id } }: { params: { id: string } }) {
+  const job = mockJobs.find((j) => j.id === id);
   const { toast } = useToast();
   const [isSending, setIsSending] = React.useState(false);
   const [isCalculating, setIsCalculating] = React.useState(false);
