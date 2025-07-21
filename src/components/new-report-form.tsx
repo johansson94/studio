@@ -163,23 +163,31 @@ export function NewReportForm() {
     setIsFetchingPlate(true);
     try {
       const result = await getVehicleInfoByLicensePlate({ licensePlate });
-      form.setValue("vehicleMake", result.make);
-      form.setValue("vehicleModel", result.model);
-      form.setValue("vin", result.vin);
-      form.setValue("insuranceCompany", result.insuranceCompany);
-      form.setValue("engine", result.engine);
-      form.setValue("fuelType", result.fuelType);
-      form.setValue("drivetrain", result.drivetrain);
-       toast({
-        title: "Fordonsinformation hämtad!",
-        description: `Information för ${result.make} ${result.model} har fyllts i.`,
-      });
+      if (result) {
+        form.setValue("vehicleMake", result.make);
+        form.setValue("vehicleModel", result.model);
+        form.setValue("vin", result.vin);
+        form.setValue("insuranceCompany", result.insuranceCompany);
+        form.setValue("engine", result.engine);
+        form.setValue("fuelType", result.fuelType);
+        form.setValue("drivetrain", result.drivetrain);
+         toast({
+          title: "Fordonsinformation hämtad!",
+          description: `Information för ${result.make} ${result.model} har fyllts i.`,
+        });
+      } else {
+         toast({
+            variant: "destructive",
+            title: "Fordon hittades inte",
+            description: "Kontrollera registreringsnumret och försök igen.",
+        });
+      }
     } catch (error) {
         console.error(error);
         toast({
             variant: "destructive",
             title: "Kunde inte hämta information",
-            description: "Kontrollera registreringsnumret och försök igen.",
+            description: "Ett oväntat fel uppstod. Försök igen.",
         });
     } finally {
         setIsFetchingPlate(false);

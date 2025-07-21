@@ -29,11 +29,11 @@ const VehicleInfoSchema = z.object({
 export const getVehicleInfoByLicensePlate = ai.defineTool(
   {
     name: 'getVehicleInfoByLicensePlate',
-    description: 'Returns vehicle information for a given license plate.',
+    description: 'Returns vehicle information for a given license plate, or null if not found.',
     inputSchema: z.object({
       licensePlate: z.string().describe('The license plate of the vehicle.'),
     }),
-    outputSchema: VehicleInfoSchema,
+    outputSchema: VehicleInfoSchema.nullable(),
   },
   async (input) => {
     console.log(`Looking up vehicle with plate: ${input.licensePlate}`);
@@ -44,7 +44,7 @@ export const getVehicleInfoByLicensePlate = ai.defineTool(
     if (vehicle) {
         return vehicle;
     } else {
-        throw new Error('Vehicle not found.');
+        return null;
     }
   }
 );
