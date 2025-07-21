@@ -8,6 +8,7 @@ import {
   Map,
   PlusCircle,
   Users,
+  MapPin,
 } from "lucide-react";
 
 import {
@@ -34,6 +35,11 @@ const menuItems = [
     href: "/dashboard",
     label: "Översikt",
     icon: LayoutDashboard,
+  },
+  {
+    href: "/live-map",
+    label: "Livekarta",
+    icon: MapPin,
   },
   {
     href: "/new-report",

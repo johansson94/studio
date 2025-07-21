@@ -8,6 +8,11 @@ export interface JobLogEntry {
     timestamp: Date;
 }
 
+export interface Position {
+  lat: number;
+  lng: number;
+}
+
 export interface Job {
   id: string;
   customer: {
@@ -22,6 +27,7 @@ export interface Job {
     mileage: number;
   };
   location: string;
+  position: Position;
   destination: string;
   description: string;
   status: JobStatus;
@@ -47,4 +53,5 @@ export interface User {
     name: string;
     role: UserRole;
     avatar: string;
+    position?: Position;
 }

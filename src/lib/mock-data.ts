@@ -12,13 +12,15 @@ export const mockUsers: User[] = [
     id: "user-2",
     name: "Erik Johansson",
     role: "Driver",
-    avatar: "https://placehold.co/100x100.png"
+    avatar: "https://placehold.co/100x100.png",
+    position: { lat: 59.33258, lng: 18.0649 } // Stockholm City
   },
   {
     id: "user-3",
     name: "Maria Nilsson",
     role: "Driver",
-    avatar: "https://placehold.co/100x100.png"
+    avatar: "https://placehold.co/100x100.png",
+    position: { lat: 59.8586, lng: 17.6389 } // Uppsala
   },
   {
     id: "user-4",
@@ -30,7 +32,8 @@ export const mockUsers: User[] = [
     id: "user-5",
     name: "Sofia Karlsson",
     role: "Driver",
-    avatar: "https://placehold.co/100x100.png"
+    avatar: "https://placehold.co/100x100.png",
+    position: { lat: 59.6519, lng: 17.9383 } // Arlanda
   }
 ];
 
@@ -46,6 +49,7 @@ export const mockJobs: Job[] = [
       mileage: 123456
     },
     location: "E4, Stockholm",
+    position: { lat: 59.3498, lng: 18.0291 }, // Near Vasastan
     destination: "Mekonomen, Södertälje",
     description: "Engine failure, car won't start. Blocking right lane.",
     status: "New",
@@ -67,6 +71,7 @@ export const mockJobs: Job[] = [
       mileage: 89012
     },
     location: "Drottninggatan 5, Uppsala",
+    position: { lat: 59.8581, lng: 17.6465 }, // Uppsala Central
     destination: "Vianor, Uppsala",
     description: "Flat tire, requires towing to the nearest workshop.",
     status: "In Progress",
@@ -91,6 +96,7 @@ export const mockJobs: Job[] = [
       mileage: 450678
     },
     location: "Rv70, Enköping",
+    position: { lat: 59.6364, lng: 17.0788 }, // Enköping
     destination: "Scania Service, Västerås",
     description: "Brake system malfunction. Heavy vehicle recovery needed.",
     status: "New",
@@ -111,6 +117,7 @@ export const mockJobs: Job[] = [
       mileage: 210345
     },
     location: "Arlanda Airport",
+    position: { lat: 59.6498, lng: 17.9238 }, // Arlanda
     destination: "Ford Workshop, Märsta",
     description: "Lost keys, vehicle locked.",
     status: "Completed",
@@ -140,6 +147,7 @@ export const mockJobs: Job[] = [
       mileage: 15890
     },
     location: "Gamla Uppsala",
+    position: { lat: 59.8988, lng: 17.6332 }, // Gamla Uppsala
     destination: "Home address, requested by owner",
     description: "Chain snapped.",
     status: "Completed",
@@ -167,6 +175,7 @@ export const mockJobs: Job[] = [
       mileage: 45000
     },
     location: "Gränby Centrum, Uppsala",
+    position: { lat: 59.873, lng: 17.662 }, // Gränby
     destination: "Tesla Supercharger, Uppsala",
     description: "Out of battery.",
     status: "New",
