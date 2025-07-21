@@ -11,7 +11,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Bärgarlarm",
+  title: "Bärgningsassistans",
   description: "En webbapp som underlättar arbete för bärgare.",
 };
 

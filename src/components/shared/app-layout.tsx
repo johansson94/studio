@@ -70,7 +70,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <Icons.logo className="size-5" />
             </Button>
             <span className="font-headline text-lg font-semibold">
-              Bärgarlarm
+              Bärgningsassistans
             </span>
           </div>
         </SidebarHeader>
