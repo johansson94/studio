@@ -45,6 +45,8 @@ import {
   Calculator,
   Mic,
   MicOff,
+  Building,
+  FileSpreadsheet,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -62,6 +64,18 @@ import { generateReceiptMessage } from "@/ai/flows/generate-receipt-message";
 import React from "react";
 import { generateTripReport } from "@/ai/flows/generate-trip-report";
 import { useSpeechToText } from "@/hooks/use-speech-to-text";
+import { generateInsuranceReport } from "@/ai/flows/generate-insurance-report";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 const getStatusClass = (status: Job["status"]) => {
   switch (status) {
@@ -91,7 +105,7 @@ const getVehicleIcon = (type: Job["vehicle"]["type"]) => {
 
 const getLogIcon = (event: JobLogEntry["event"]) => {
     switch (event) {
-        case 'Job Started': return <PlayCircle className="h-4 w-4 text-blue-500" />;
+        case 'Job Reported': return <PlayCircle className="h-4 w-4 text-blue-500" />;
         case 'Arrived at Site': return <Flag className="h-4 w-4 text-yellow-500" />;
         case 'Arrived at Destination': return <Check className="h-4 w-4 text-green-500" />;
         case 'Job Completed': return <CheckCircle2 className="h-4 w-4 text-green-600" />;
@@ -158,6 +172,8 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
   const { toast } = useToast();
   const [isSending, setIsSending] = React.useState(false);
   const [isCalculating, setIsCalculating] = React.useState(false);
+  const [isGeneratingInsuranceReport, setIsGeneratingInsuranceReport] = React.useState(false);
+  const [insuranceReport, setInsuranceReport] = React.useState<string | null>(null);
 
   const destinationNotesRef = React.useRef<HTMLTextAreaElement>(null);
   const keysLocationRef = React.useRef<HTMLTextAreaElement>(null);
@@ -255,6 +271,37 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
     }
   };
 
+  const handleGenerateInsuranceReport = async () => {
+    if (!job.costs) {
+        toast({
+            variant: "destructive",
+            title: "Kostnader saknas",
+            description: "Vänligen fyll i och spara kostnaderna innan du skapar rapporten.",
+        });
+        return;
+    }
+    setIsGeneratingInsuranceReport(true);
+    try {
+        const reportData = {
+            job: {
+                ...job,
+                reportedAt: job.reportedAt.toISOString(),
+            }
+        };
+        const result = await generateInsuranceReport(reportData);
+        setInsuranceReport(result.report);
+    } catch (error) {
+        console.error("Failed to generate insurance report:", error);
+        toast({
+            variant: "destructive",
+            title: "Fel vid rapportgenerering",
+            description: "Kunde inte skapa rapporten. Försök igen.",
+        });
+    } finally {
+        setIsGeneratingInsuranceReport(false);
+    }
+  };
+
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
@@ -343,6 +390,18 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                   <Wrench className="h-4 w-4 text-muted-foreground" />
                   <span>Fordonstyp: <strong>{job.vehicle.type}</strong></span>
                 </div>
+                {job.vehicle.vin && (
+                    <div className="flex items-center gap-2 col-span-2">
+                        <span className="text-xs font-mono text-muted-foreground">VIN:</span>
+                        <strong className="text-xs font-mono">{job.vehicle.vin}</strong>
+                    </div>
+                )}
+                {job.insuranceCompany && (
+                     <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-muted-foreground" />
+                        <span>Försäkringsbolag: <strong>{job.insuranceCompany}</strong></span>
+                    </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -563,6 +622,51 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                 </CardFooter>
             </Card>
           )}
+
+           {/* Insurance Report Card */}
+            {job.status === 'Completed' && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Rapportering</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full"
+                                    onClick={handleGenerateInsuranceReport} 
+                                    disabled={isGeneratingInsuranceReport}
+                                >
+                                    {isGeneratingInsuranceReport ? <Loader2 className="animate-spin" /> : <FileSpreadsheet />}
+                                    Skapa Rapport till Försäkringsbolag
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="max-w-2xl">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Rapport för Försäkringsbolag</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Detta är en förhandsgranskning av rapporten som skickas till försäkringsbolaget.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                {insuranceReport ? (
+                                     <div className="prose prose-sm dark:prose-invert max-h-[60vh] overflow-y-auto bg-secondary p-4 rounded-md">
+                                        <div dangerouslySetInnerHTML={{ __html: insuranceReport.replace(/\n/g, '<br />').replace(/## (.*?)<br \/>/g, '<h2>$1</h2>').replace(/### (.*?)<br \/>/g, '<h3>$1</h3>') }} />
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center h-40">
+                                        <p>Rapporten genereras...</p>
+                                    </div>
+                                )}
+                                <AlertDialogFooter>
+                                    <AlertDialogAction>Stäng</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+
+                    </CardContent>
+                </Card>
+            )}
 
         </div>
 

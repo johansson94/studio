@@ -27,11 +27,12 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User, Car, HardHat, Bike, Truck, Camera, ImagePlus, CheckCircle2, Phone, UserCircle, Users, Sparkles, Loader2 } from "lucide-react";
+import { User, Car, HardHat, Bike, Truck, Camera, ImagePlus, CheckCircle2, Phone, UserCircle, Users, Sparkles, Loader2, Search, Building } from "lucide-react";
 import type { ActionTaken } from "@/lib/types";
 import { mockUsers } from "@/lib/mock-data";
 import { identifyVehicle } from "@/ai/flows/identify-vehicle";
 import { Separator } from "./ui/separator";
+import { getVehicleInfoByLicensePlate } from "@/ai/tools/vehicle-lookup-tool";
 
 const actions: { id: ActionTaken; label: string }[] = [
     { id: "Towing", label: "Bärgning" },
@@ -50,12 +51,14 @@ const formSchema = z.object({
     .string()
     .min(3, "Registreringsnummer måste vara minst 3 tecken.")
     .max(10),
+  vin: z.string().optional(),
   mileage: z.coerce.number().min(0, "Mätarställning kan inte vara negativ."),
   vehicleType: z.enum(["Car", "Motorcycle", "Truck", "Van"]),
   location: z.string().min(5, "Plats måste vara minst 5 tecken."),
   destination: z.string().min(5, "Destination måste vara minst 5 tecken."),
   description: z.string().min(10, "Beskrivning måste vara minst 10 tecken."),
   assignedTo: z.string().optional(),
+  insuranceCompany: z.string().optional(),
   arrivalImage: z.string().optional(),
   destinationImage: z.string().optional(),
   actionsTaken: z.array(z.string()).optional(),
@@ -69,6 +72,8 @@ export function NewReportForm() {
   const [destinationImagePreview, setDestinationImagePreview] = useState<string | null>(null);
   const [vehicleIdImage, setVehicleIdImage] = useState<string | null>(null);
   const [isIdentifying, setIsIdentifying] = useState(false);
+  const [isFetchingPlate, setIsFetchingPlate] = useState(false);
+
 
   const arrivalImageRef = useRef<HTMLInputElement>(null);
   const destinationImageRef = useRef<HTMLInputElement>(null);
@@ -82,11 +87,13 @@ export function NewReportForm() {
       vehicleMake: "",
       vehicleModel: "",
       licensePlate: "",
+      vin: "",
       mileage: 0,
       location: "",
       destination: "",
       description: "",
       actionsTaken: [],
+      insuranceCompany: "",
     },
   });
 
@@ -138,6 +145,39 @@ export function NewReportForm() {
       setIsIdentifying(false);
     }
   };
+
+  const handleFetchVehicleInfo = async () => {
+    const licensePlate = form.getValues("licensePlate");
+    if (!licensePlate) {
+       toast({
+        variant: "destructive",
+        title: "Registreringsnummer saknas",
+        description: "Vänligen fyll i ett registreringsnummer.",
+      });
+      return;
+    }
+    setIsFetchingPlate(true);
+    try {
+      const result = await getVehicleInfoByLicensePlate({ licensePlate });
+      form.setValue("vehicleMake", result.make);
+      form.setValue("vehicleModel", result.model);
+      form.setValue("vin", result.vin);
+      form.setValue("insuranceCompany", result.insuranceCompany);
+       toast({
+        title: "Fordonsinformation hämtad!",
+        description: `Information för ${result.make} ${result.model} har fyllts i.`,
+      });
+    } catch (error) {
+        console.error(error);
+        toast({
+            variant: "destructive",
+            title: "Kunde inte hämta information",
+            description: "Kontrollera registreringsnumret och försök igen.",
+        });
+    } finally {
+        setIsFetchingPlate(false);
+    }
+  }
 
 
   function onSubmit(values: FormValues) {
@@ -230,6 +270,25 @@ export function NewReportForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
+                     <FormField
+                      control={form.control}
+                      name="licensePlate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Registreringsnummer</FormLabel>
+                           <div className="flex gap-2">
+                             <FormControl>
+                                <Input placeholder="t.ex. REG 123" {...field} />
+                              </FormControl>
+                              <Button type="button" variant="secondary" onClick={handleFetchVehicleInfo} disabled={isFetchingPlate}>
+                                {isFetchingPlate ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                                <span className="sr-only">Hämta information</span>
+                              </Button>
+                           </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="vehicleMake"
@@ -258,12 +317,12 @@ export function NewReportForm() {
                     />
                     <FormField
                       control={form.control}
-                      name="licensePlate"
+                      name="vin"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Registreringsnummer</FormLabel>
+                          <FormLabel>VIN-nummer</FormLabel>
                           <FormControl>
-                            <Input placeholder="t.ex. REG 123" {...field} />
+                            <Input placeholder="Fylls i automatiskt..." {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -308,6 +367,22 @@ export function NewReportForm() {
                   </div>
 
                   <div className="space-y-4">
+                     <FormField
+                      control={form.control}
+                      name="insuranceCompany"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Försäkringsbolag</FormLabel>
+                          <FormControl>
+                             <div className="relative">
+                               <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                               <Input placeholder="t.ex. If, Trygg-Hansa..." {...field} className="pl-10" />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="location"
@@ -344,7 +419,7 @@ export function NewReportForm() {
                             <Textarea
                               placeholder="Beskriv problemet med fordonet..."
                               className="resize-none"
-                              rows={8}
+                              rows={5}
                               {...field}
                             />
                           </FormControl>

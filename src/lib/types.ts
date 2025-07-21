@@ -33,6 +33,7 @@ export interface Job {
     make: string;
     model: string;
     licensePlate: string;
+    vin?: string;
     type: "Car" | "Motorcycle" | "Truck" | "Van";
     mileage: number;
   };
@@ -52,6 +53,7 @@ export interface Job {
   keysLocation?: string;
   log?: JobLogEntry[];
   costs?: JobCosts;
+  insuranceCompany?: string;
 }
 
 export interface Kpi {
