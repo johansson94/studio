@@ -29,7 +29,8 @@ const GenerateReceiptMessageInputSchema = z.object({
 });
 export type GenerateReceiptMessageInput = z.infer<typeof GenerateReceiptMessageInputSchema>;
 
-export type GenerateReceiptMessageOutput = z.infer<typeof z.object({ message: z.string() })>;
+const GenerateReceiptMessageOutputSchema = z.object({ message: z.string() });
+export type GenerateReceiptMessageOutput = z.infer<typeof GenerateReceiptMessageOutputSchema>;
 
 export async function generateReceiptMessage(input: GenerateReceiptMessageInput): Promise<GenerateReceiptMessageOutput> {
   return generateReceiptMessageFlow(input);
@@ -38,7 +39,7 @@ export async function generateReceiptMessage(input: GenerateReceiptMessageInput)
 const prompt = ai.definePrompt({
     name: 'generateReceiptMessagePrompt',
     input: { schema: GenerateReceiptMessageInputSchema },
-    output: { schema: z.object({ message: z.string() }) },
+    output: { schema: GenerateReceiptMessageOutputSchema },
     prompt: `You are a helpful assistant for a towing company called RescueAssist. Your task is to generate a concise and friendly SMS/email message for a customer after a job is completed. The message should be in Swedish.
 
     Use the following information:
@@ -63,7 +64,7 @@ const generateReceiptMessageFlow = ai.defineFlow(
   {
     name: 'generateReceiptMessageFlow',
     inputSchema: GenerateReceiptMessageInputSchema,
-    outputSchema: z.object({ message: z.string() }),
+    outputSchema: GenerateReceiptMessageOutputSchema,
   },
   async (input) => {
     const { output } = await prompt(input);

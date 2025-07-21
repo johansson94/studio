@@ -42,6 +42,7 @@ import {
   Send,
   Loader2,
   ReceiptText,
+  Calculator,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { generateReceiptMessage } from "@/ai/flows/generate-receipt-message";
 import React from "react";
+import { generateTripReport } from "@/ai/flows/generate-trip-report";
 
 const getStatusClass = (status: Job["status"]) => {
   switch (status) {
@@ -108,6 +110,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const job = mockJobs.find((j) => j.id === params.id);
   const { toast } = useToast();
   const [isSending, setIsSending] = React.useState(false);
+  const [isCalculating, setIsCalculating] = React.useState(false);
+
+  const deductibleRef = React.useRef<HTMLInputElement>(null);
+  const otherFeesRef = React.useRef<HTMLInputElement>(null);
 
 
   if (!job) {
@@ -145,6 +151,40 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
       });
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    setIsCalculating(true);
+    try {
+      const driver = mockUsers.find(u => u.id === job.assignedTo);
+      const result = await generateTripReport({
+        startLocation: driver?.assignedVehicle ? `${driver.name}s startposition` : "Bärgningsstation, Stockholm",
+        breakdownLocation: job.location,
+        destination: job.destination,
+      });
+
+      if (deductibleRef.current) {
+        deductibleRef.current.value = result.costs.deductible.toString();
+      }
+      if (otherFeesRef.current) {
+        otherFeesRef.current.value = result.costs.otherFees.toString();
+      }
+
+      toast({
+        title: "Reserapport Genererad",
+        description: `Beräknad sträcka: ${result.distance}. Kostnader har fyllts i.`,
+      });
+
+    } catch (e) {
+       console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Fel",
+        description: "Kunde inte generera reserapport.",
+      });
+    } finally {
+      setIsCalculating(false);
     }
   };
 
@@ -328,14 +368,18 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         <CardDescription>Fyll i kostnader för uppdraget innan det slutförs.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                       <Button variant="outline" onClick={handleGenerateReport} disabled={isCalculating} className="w-full mb-4">
+                          {isCalculating ? <Loader2 className="animate-spin" /> : <Calculator />}
+                          Generera Reserapport & Kostnad
+                        </Button>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="deductible" className="flex items-center gap-2"><ReceiptText className="h-4 w-4"/>Självrisk (SEK)</Label>
-                                <Input id="deductible" type="number" placeholder="0" defaultValue={job.costs?.deductible} />
+                                <Input ref={deductibleRef} id="deductible" type="number" placeholder="0" defaultValue={job.costs?.deductible} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="other-fees" className="flex items-center gap-2"><DollarSign className="h-4 w-4"/>Övriga avgifter (SEK)</Label>
-                                <Input id="other-fees" type="number" placeholder="0" defaultValue={job.costs?.otherFees}/>
+                                <Input ref={otherFeesRef} id="other-fees" type="number" placeholder="0" defaultValue={job.costs?.otherFees}/>
                             </div>
                         </div>
                         <div className="flex items-center space-x-2">
