@@ -173,7 +173,8 @@ function DictationButton({
 }
 
 
-export default function JobDetailPage({ params: { id } }: { params: { id: string } }) {
+export default function JobDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const job = mockJobs.find((j) => j.id === id);
   const { toast } = useToast();
   const [isSending, setIsSending] = React.useState(false);
