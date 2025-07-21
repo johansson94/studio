@@ -31,18 +31,6 @@ export async function transcribeAudio(input: TranscribeAudioInput): Promise<Tran
   return transcribeAudioFlow(input);
 }
 
-const prompt = ai.definePrompt({
-    name: 'transcribeAudioPrompt',
-    input: { schema: TranscribeAudioInputSchema },
-    output: { schema: TranscribeAudioOutputSchema },
-    prompt: `You are an expert audio transcriber. Transcribe the following audio recording accurately. The language is likely Swedish.
-
-    Audio: {{media url=audioDataUri}}
-    
-    Return only the transcribed text.
-    `,
-});
-
 const transcribeAudioFlow = ai.defineFlow(
   {
     name: 'transcribeAudioFlow',
