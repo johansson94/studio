@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Car, MapPin, Truck, Bike, HardHat } from "lucide-react";
+import Link from "next/link";
 
 interface JobCardProps {
   job: Job;
@@ -44,44 +45,47 @@ const getVehicleIcon = (type: Job["vehicle"]["type"]) => {
 
 export function JobCard({ job }: JobCardProps) {
   return (
-    <Card className="flex flex-col">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="font-headline text-lg">{job.id}</CardTitle>
-          <Badge
-            className={cn(
-              "text-white",
-              getStatusClass(job.status)
-            )}
-          >
-            {job.status}
-          </Badge>
-        </div>
-        <CardDescription>
-          {job.vehicle.make} {job.vehicle.model} - {job.vehicle.licensePlate}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-grow space-y-3">
-        <div className="flex items-center gap-2 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            {getVehicleIcon(job.vehicle.type)}
-            <span>{job.vehicle.type}</span>
+    <Link href={`/job/${job.id}`} className="block h-full">
+      <Card className="flex flex-col h-full hover:border-primary transition-colors">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="font-headline text-lg">{job.id}</CardTitle>
+            <Badge
+              className={cn(
+                "text-white",
+                getStatusClass(job.status)
+              )}
+            >
+              {job.status}
+            </Badge>
           </div>
-        </div>
-        <div className="flex items-start gap-2 text-sm">
-          <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-          <p className="font-medium">{job.location}</p>
-        </div>
+          <CardDescription>
+            {job.vehicle.make} {job.vehicle.model} - {job.vehicle.licensePlate}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex-grow space-y-3">
+          <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              {getVehicleIcon(job.vehicle.type)}
+              <span>{job.vehicle.type}</span>
+            </div>
+          </div>
+          <div className="flex items-start gap-2 text-sm">
+            <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+            <p className="font-medium">{job.location}</p>
+          </div>
 
-        <p className="text-sm text-muted-foreground pt-2 italic line-clamp-2">
-          "{job.description}"
-        </p>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full" variant="outline">
-          View Details
-        </Button>
-      </CardFooter>
-    </Card>
+          <p className="text-sm text-muted-foreground pt-2 italic line-clamp-2">
+            "{job.description}"
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full" variant="outline" asChild>
+            {/* The wrapping Link component makes the button functional */}
+            <div className="w-full">View Details</div>
+          </Button>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 }
