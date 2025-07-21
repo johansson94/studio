@@ -1,4 +1,4 @@
-import type { Job } from "@/lib/types";
+import type { Job, JobPriority } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Car, MapPin, Truck, Bike, HardHat } from "lucide-react";
+import { Car, MapPin, Truck, Bike, HardHat, AlertTriangle, ChevronsUp, ChevronUp } from "lucide-react";
 import Link from "next/link";
 
 interface JobCardProps {
@@ -43,6 +43,25 @@ const getVehicleIcon = (type: Job["vehicle"]["type"]) => {
   }
 };
 
+const PriorityIndicator = ({ priority }: { priority: JobPriority }) => {
+    switch (priority) {
+        case "Hög":
+            return <div className="flex items-center gap-1 text-destructive font-semibold">
+                <AlertTriangle className="h-4 w-4" /> <span>Hög Prioritet</span>
+            </div>
+        case "Normal":
+            return <div className="flex items-center gap-1 text-amber-600">
+                <ChevronsUp className="h-4 w-4" /> <span>Normal Prioritet</span>
+            </div>
+        case "Låg":
+             return <div className="flex items-center gap-1 text-green-600">
+                <ChevronUp className="h-4 w-4" /> <span>Låg Prioritet</span>
+            </div>
+        default:
+            return null;
+    }
+}
+
 export function JobCard({ job }: JobCardProps) {
   return (
     <Link href={`/job/${job.id}`} className="block h-full">
@@ -64,6 +83,15 @@ export function JobCard({ job }: JobCardProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow space-y-3">
+          {job.priority && job.status === "New" && (
+            <div className="text-sm">
+                <PriorityIndicator priority={job.priority} />
+            </div>
+          )}
+           {job.category && (
+              <Badge variant="secondary">{job.category}</Badge>
+          )}
+
           <div className="flex items-center gap-2 text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
               {getVehicleIcon(job.vehicle.type)}

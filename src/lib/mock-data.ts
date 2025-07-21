@@ -63,7 +63,7 @@ export const mockJobs: Job[] = [
     location: "E4, Stockholm",
     position: { lat: 59.3498, lng: 18.0291 }, // Near Vasastan
     destination: "Mekonomen, Södertälje",
-    description: "Engine failure, car won't start. Blocking right lane.",
+    description: "Engine failure, car won't start. Blocking right lane on the highway.",
     status: "New",
     reportedAt: new Date(new Date().setDate(new Date().getDate() - 1)),
     assignedTo: "user-2",
@@ -72,7 +72,9 @@ export const mockJobs: Job[] = [
     tmaUsed: true,
     log: [
       { event: 'Job Reported', timestamp: new Date(new Date().setDate(new Date().getDate() - 1)) }
-    ]
+    ],
+    priority: "Hög",
+    category: "Mekaniskt fel",
   },
   {
     id: "RA-8464",
@@ -105,7 +107,9 @@ export const mockJobs: Job[] = [
       otherFees: 0,
       total: 1500,
       paidOnSite: true,
-    }
+    },
+    priority: "Normal",
+    category: "Punktering",
   },
   {
     id: "RA-8465",
@@ -126,7 +130,9 @@ export const mockJobs: Job[] = [
     actionsTaken: ["Towing"],
     log: [
         { event: 'Job Reported', timestamp: new Date(new Date().setHours(new Date().getHours() - 1)) }
-    ]
+    ],
+    priority: "Hög",
+    category: "Mekaniskt fel"
   },
   {
     id: "RA-8466",
@@ -164,7 +170,9 @@ export const mockJobs: Job[] = [
       otherFees: 250,
       total: 750,
       paidOnSite: true
-    }
+    },
+    category: "Låsöppning",
+    priority: "Normal"
   },
   {
     id: "RA-8467",
@@ -198,7 +206,9 @@ export const mockJobs: Job[] = [
       otherFees: 0,
       total: 0,
       paidOnSite: false
-    }
+    },
+    category: "Mekaniskt fel",
+    priority: "Normal"
   },
   {
     id: "RA-8468",
@@ -221,7 +231,9 @@ export const mockJobs: Job[] = [
     driverDiagnosis: ["Battery Issue"],
     log: [
         { event: 'Job Reported', timestamp: new Date(new Date().setMinutes(new Date().getMinutes() - 15)) }
-    ]
+    ],
+    priority: "Låg",
+    category: "Batteriproblem"
   },
 ];
 

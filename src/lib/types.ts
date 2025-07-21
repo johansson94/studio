@@ -22,6 +22,8 @@ export interface JobCosts {
     paidOnSite: boolean;
 }
 
+export type JobPriority = "Hög" | "Normal" | "Låg";
+
 export interface Job {
   id: string;
   customer: {
@@ -54,6 +56,8 @@ export interface Job {
   log?: JobLogEntry[];
   costs?: JobCosts;
   insuranceCompany?: string;
+  priority?: JobPriority;
+  category?: string;
 }
 
 export interface Kpi {
