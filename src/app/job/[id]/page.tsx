@@ -105,6 +105,14 @@ const vehicleProblems: { id: VehicleProblem; label: string }[] = [
     { id: "Accident", label: "Olycka" },
 ];
 
+const standardActions: { id: string; label: string }[] = [
+    { id: "Towing", label: "Bärgning" },
+    { id: "Jump Start", label: "Starthjälp" },
+    { id: "Tire Change", label: "Däckbyte" },
+    { id: "Unlocking", label: "Låsöppning" },
+    { id: "Fuel Delivery", label: "Bränsleleverans" },
+];
+
 
 export default function JobDetailPage({ params: { id } }: { params: { id: string } }) {
   const job = mockJobs.find((j) => j.id === id);
@@ -320,6 +328,22 @@ export default function JobDetailPage({ params: { id } }: { params: { id: string
                                     </div>
                                 ))}
                              </div>
+                        </div>
+                        <Separator />
+                        <div className="space-y-4">
+                            <Label className="flex items-center gap-2"><Wrench className="h-4 w-4"/>Vidtagna åtgärder</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {standardActions.map(item => (
+                                    <div key={item.id} className="flex items-center gap-2">
+                                        <Checkbox id={`action-${item.id}`} />
+                                        <Label htmlFor={`action-${item.id}`} className="font-normal">{item.label}</Label>
+                                    </div>
+                                ))}
+                            </div>
+                            <div>
+                                <Label htmlFor="other-actions">Övriga åtgärder</Label>
+                                <Input id="other-actions" placeholder="t.ex. Dokumenterat skador..." />
+                            </div>
                         </div>
                         <Separator />
                         <div className="flex items-center justify-between">

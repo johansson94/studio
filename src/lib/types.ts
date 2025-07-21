@@ -1,7 +1,7 @@
 export type JobStatus = "New" | "In Progress" | "Completed";
 export type UserRole = "Dispatcher" | "Driver";
 
-export type ActionTaken = "Jump Start" | "Tire Change" | "Towing" | "Unlocking" | "Fuel Delivery";
+export type ActionTaken = string;
 
 export type VehicleProblem = "Engine Failure" | "Flat Tire" | "Battery Issue" | "Brake Failure" | "Lockout" | "Accident";
 
