@@ -1,3 +1,6 @@
+
+'use client'
+
 import { mockJobs, mockUsers } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import {
@@ -34,6 +37,11 @@ import {
   Clock,
   ShieldAlert,
   ClipboardCheck,
+  CreditCard,
+  DollarSign,
+  Send,
+  Loader2,
+  ReceiptText,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -45,6 +53,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { generateReceiptMessage } from "@/ai/flows/generate-receipt-message";
+import React from "react";
 
 const getStatusClass = (status: Job["status"]) => {
   switch (status) {
@@ -94,6 +106,9 @@ const vehicleProblems: { id: VehicleProblem; label: string }[] = [
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const job = mockJobs.find((j) => j.id === params.id);
+  const { toast } = useToast();
+  const [isSending, setIsSending] = React.useState(false);
+
 
   if (!job) {
     notFound();
@@ -102,6 +117,37 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const assignedDriver = job.assignedTo
     ? mockUsers.find((u) => u.id === job.assignedTo)
     : null;
+
+  const handleSendReceipt = async () => {
+    setIsSending(true);
+    try {
+      const result = await generateReceiptMessage({
+        jobId: job.id,
+        customerName: job.customer.name,
+        vehicleMake: job.vehicle.make,
+        vehicleModel: job.vehicle.model,
+        destination: job.destination,
+        destinationNotes: job.destinationNotes,
+        keysLocation: job.keysLocation,
+        costs: job.costs,
+      });
+      console.log("Generated message:", result.message);
+      toast({
+        title: "Kvitto skickat (simulerat)",
+        description: "Ett meddelande har genererats för kunden.",
+      });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Fel",
+        description: "Kunde inte generera meddelande.",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
@@ -274,13 +320,53 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </Card>
           )}
 
+           {/* Costings Card */}
+            {job.status !== 'New' && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Kostnader & Betalning</CardTitle>
+                        <CardDescription>Fyll i kostnader för uppdraget innan det slutförs.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="deductible" className="flex items-center gap-2"><ReceiptText className="h-4 w-4"/>Självrisk (SEK)</Label>
+                                <Input id="deductible" type="number" placeholder="0" defaultValue={job.costs?.deductible} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="other-fees" className="flex items-center gap-2"><DollarSign className="h-4 w-4"/>Övriga avgifter (SEK)</Label>
+                                <Input id="other-fees" type="number" placeholder="0" defaultValue={job.costs?.otherFees}/>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="paid-on-site" defaultChecked={job.costs?.paidOnSite} />
+                            <Label htmlFor="paid-on-site">Betalat på plats?</Label>
+                        </div>
+                    </CardContent>
+                     <CardFooter className="flex justify-between items-center">
+                        <Button>Spara kostnader</Button>
+                        <Button variant="outline" onClick={handleSendReceipt} disabled={isSending}>
+                            {isSending ? <Loader2 className="animate-spin" /> : <Send />}
+                            Skicka kvitto till kund
+                        </Button>
+                    </CardFooter>
+                </Card>
+            )}
+
            {/* Completion Details Card */}
-          {job.status === 'Completed' && (
+          {job.status === 'Completed' && job.costs && (
              <Card>
                 <CardHeader>
-                  <CardTitle>Avlämningsinformation</CardTitle>
+                  <CardTitle>Slutfört & Betalat</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>Självrisk: <strong>{job.costs.deductible} SEK</strong></div>
+                    <div>Övriga avgifter: <strong>{job.costs.otherFees} SEK</strong></div>
+                    <div className="font-bold">Totalt: <strong>{job.costs.total} SEK</strong></div>
+                    <div>Status: <strong>{job.costs.paidOnSite ? 'Betalat på plats' : 'Faktureras'}</strong></div>
+                  </div>
+                  <Separator/>
                   <div className="space-y-2">
                       <Label className="flex items-center gap-2 text-muted-foreground"><FileText className="h-4 w-4"/>Anteckningar</Label>
                       <p className="text-sm p-3 bg-secondary rounded-md">{job.destinationNotes || "Inga anteckningar."}</p>

@@ -52,7 +52,7 @@ export const mockUsers: User[] = [
 export const mockJobs: Job[] = [
   {
     id: "RA-8463",
-    customer: { name: "Kalle Anka", phone: "070-1234567" },
+    customer: { name: "Kalle Anka", phone: "070-1234567", email: "kalle.anka@example.com" },
     vehicle: {
       make: "Volvo",
       model: "XC60",
@@ -76,7 +76,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "RA-8464",
-    customer: { name: "Musse Pigg", phone: "070-2345678" },
+    customer: { name: "Musse Pigg", phone: "070-2345678", email: "musse.pigg@example.com" },
     vehicle: {
       make: "Audi",
       model: "A4",
@@ -99,11 +99,17 @@ export const mockJobs: Job[] = [
       { event: 'Job Reported', timestamp: new Date(new Date().setHours(new Date().getHours() - 3)) },
       { event: 'Job Started', timestamp: new Date(new Date().setHours(new Date().getHours() - 2.5)) },
       { event: 'Arrived at Site', timestamp: new Date(new Date().setHours(new Date().getHours() - 1)) }
-    ]
+    ],
+    costs: {
+      deductible: 1500,
+      otherFees: 0,
+      total: 1500,
+      paidOnSite: true,
+    }
   },
   {
     id: "RA-8465",
-    customer: { name: "Långben", phone: "070-3456789" },
+    customer: { name: "Långben", phone: "070-3456789", email: "langben@example.com" },
     vehicle: {
       make: "Scania",
       model: "R-series",
@@ -124,7 +130,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "RA-8466",
-    customer: { name: "Kajsa Anka", phone: "070-4567890" },
+    customer: { name: "Kajsa Anka", phone: "070-4567890", email: "kajsa.anka@example.com" },
     vehicle: {
       make: "Ford",
       model: "Transit",
@@ -152,11 +158,17 @@ export const mockJobs: Job[] = [
       { event: 'Arrived at Site', timestamp: new Date(new Date().setDate(new Date().getDate() - 2) + 1000 * 60 * 30) },
       { event: 'Arrived at Destination', timestamp: new Date(new Date().setDate(new Date().getDate() - 2) + 1000 * 60 * 90) },
       { event: 'Job Completed', timestamp: new Date(new Date().setDate(new Date().getDate() - 2) + 1000 * 60 * 95) }
-    ]
+    ],
+    costs: {
+      deductible: 500,
+      otherFees: 250,
+      total: 750,
+      paidOnSite: true
+    }
   },
   {
     id: "RA-8467",
-    customer: { name: "Joakim von Anka", phone: "070-5678901" },
+    customer: { name: "Joakim von Anka", phone: "070-5678901", email: "joakim.von.anka@example.com" },
     vehicle: {
       make: "Kawasaki",
       model: "Ninja 400",
@@ -180,11 +192,17 @@ export const mockJobs: Job[] = [
         { event: 'Arrived at Site', timestamp: new Date(new Date().setDate(new Date().getDate() - 3) + 1000 * 60 * 25) },
         { event: 'Arrived at Destination', timestamp: new Date(new Date().setDate(new Date().getDate() - 3) + 1000 * 60 * 55) },
         { event: 'Job Completed', timestamp: new Date(new Date().setDate(new Date().getDate() - 3) + 1000 * 60 * 60) },
-    ]
+    ],
+     costs: {
+      deductible: 0,
+      otherFees: 0,
+      total: 0,
+      paidOnSite: false
+    }
   },
   {
     id: "RA-8468",
-    customer: { name: "Pluto", phone: "070-6789012" },
+    customer: { name: "Pluto", phone: "070-6789012", email: "pluto@example.com" },
     vehicle: {
       make: "Tesla",
       model: "Model Y",

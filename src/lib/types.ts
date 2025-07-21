@@ -15,11 +15,19 @@ export interface Position {
   lng: number;
 }
 
+export interface JobCosts {
+    deductible: number;
+    otherFees: number;
+    total: number;
+    paidOnSite: boolean;
+}
+
 export interface Job {
   id: string;
   customer: {
     name: string;
     phone: string;
+    email?: string;
   };
   vehicle: {
     make: string;
@@ -43,6 +51,7 @@ export interface Job {
   destinationNotes?: string;
   keysLocation?: string;
   log?: JobLogEntry[];
+  costs?: JobCosts;
 }
 
 export interface Kpi {
