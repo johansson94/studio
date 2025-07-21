@@ -47,9 +47,9 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-headline font-bold">Reporting Dashboard</h1>
+        <h1 className="text-3xl font-headline font-bold">Översikt</h1>
         <p className="text-muted-foreground mt-1">
-          Summary of key performance metrics and job data.
+          Sammanfattning av nyckeltal och uppdragsdata.
         </p>
       </div>
 
@@ -90,7 +90,7 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Weekly Job Volume</CardTitle>
+          <CardTitle className="font-headline">Uppdragsvolym per vecka</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">

@@ -110,7 +110,7 @@ export function JobCard({ job }: JobCardProps) {
         <CardFooter>
           <Button className="w-full" variant="outline" asChild>
             {/* The wrapping Link component makes the button functional */}
-            <div className="w-full">View Details</div>
+            <div className="w-full">Visa detaljer</div>
           </Button>
         </CardFooter>
       </Card>

@@ -122,9 +122,9 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-headline font-bold">Active Jobs</h1>
+        <h1 className="text-3xl font-headline font-bold">Aktiva uppdrag</h1>
         <p className="text-muted-foreground mt-1">
-          Real-time updates on job status and location. Use AI search for advanced filtering.
+          Realtidsuppdateringar om uppdragsstatus och plats. Använd AI-sökning för avancerad filtrering.
         </p>
       </div>
 
@@ -142,13 +142,13 @@ export default function Home() {
         </form>
         <Select defaultValue="all" onValueChange={handleStatusFilterChange}>
           <SelectTrigger className="w-full sm:w-[180px] bg-card">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder="Filtrera på status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="New">New</SelectItem>
-            <SelectItem value="In Progress">In Progress</SelectItem>
-            <SelectItem value="Completed">Completed</SelectItem>
+            <SelectItem value="all">Alla statusar</SelectItem>
+            <SelectItem value="New">Ny</SelectItem>
+            <SelectItem value="In Progress">Pågående</SelectItem>
+            <SelectItem value="Completed">Slutförd</SelectItem>
           </SelectContent>
         </Select>
       </div>
